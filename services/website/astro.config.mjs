@@ -22,8 +22,9 @@ export default defineConfig({
   vite: {
     define: {
       // Make environment variables available to client-side code
+      // Default to Railway production URL for GitHub Pages
       'import.meta.env.CHAT_API_URL': JSON.stringify(
-        process.env.CHAT_API_URL || 'http://localhost:8080'
+        process.env.CHAT_API_URL || 'https://the-worlds-largest-dungeon-production.up.railway.app'
       ),
     },
   },
