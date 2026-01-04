@@ -1,0 +1,26 @@
+name: Deploy RAG Server
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'services/rag-server/**'
+      - '.github/workflows/rag-server-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          cd services/rag-server
+          railway up --service wld-rag-server
