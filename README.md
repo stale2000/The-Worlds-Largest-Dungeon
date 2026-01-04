@@ -7,9 +7,8 @@ A web application for quickly searching and retrieving D&D 5E rules and adventur
 - [The World's Largest Dungeon - Rules Retrieval](#the-worlds-largest-dungeon---rules-retrieval)
   - [📑 Table of Contents](#-table-of-contents)
   - [🎯 Project Goal](#-project-goal)
+  - [🛠️ Tech Stack](#️-tech-stack)
   - [🏗️ Architecture](#️-architecture)
-    - [RAG Server](#rag-server)
-    - [SQLite Server](#sqlite-server)
   - [📚 Content Sources](#-content-sources)
     - [SRD 5.2 (System Reference Document)](#srd-52-system-reference-document)
     - [World's Largest Dungeon (Book 1)](#worlds-largest-dungeon-book-1)
@@ -27,6 +26,16 @@ Build a fast, intelligent rules lookup tool that can:
 - Retrieve room descriptions, encounters, and monster stats from The World's Largest Dungeon
 - Provide natural language answers using RAG (Retrieval-Augmented Generation)
 
+## 🛠️ Tech Stack
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **RAG** | [Index Foundry](https://github.com/mnehmos/mnehmos.index-foundry.mcp) | Vector search, embeddings, semantic retrieval |
+| **Structured Data** | SQLite + Custom MCP Server | Spell/monster/equipment/room queries |
+| **LLM** | Claude API | Response synthesis |
+| **Deployment** | Railway | Multi-service hosting |
+| **Frontend** | HTML/CSS/JS | Chat interface |
+
 ## 🏗️ Architecture
 
 ```
@@ -35,40 +44,33 @@ Build a fast, intelligent rules lookup tool that can:
 │                   (Search Interface)                        │
 └─────────────────────────┬───────────────────────────────────┘
                           │
-          ┌───────────────┴───────────────┐
-          │                               │
-          ▼                               ▼
-┌─────────────────────┐       ┌─────────────────────┐
-│    RAG Server       │       │   SQLite Server     │
-│  (Vector Search)    │       │ (Structured Lookup) │
-│                     │       │                     │
-│ • Semantic search   │       │ • Spell tables      │
-│ • Context retrieval │       │ • Monster stats     │
-│ • Chunk embeddings  │       │ • Equipment lists   │
-└─────────────────────┘       └─────────────────────┘
-          │                               │
-          └───────────────┬───────────────┘
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   API Gateway (Express)                     │
+│                   Query Classification                      │
+└──────────┬──────────────────────────────────┬───────────────┘
+           │                                  │
+           ▼                                  ▼
+┌─────────────────────┐            ┌─────────────────────┐
+│   Index Foundry     │            │   SQLite MCP        │
+│   (RAG Server)      │            │   (Custom Server)   │
+│                     │            │                     │
+│ • Semantic search   │            │ • Spell queries     │
+│ • Vector embeddings │            │ • Monster lookups   │
+│ • Context retrieval │            │ • Equipment tables  │
+└─────────────────────┘            │ • Room data         │
+                                   └─────────────────────┘
+           │                                  │
+           └──────────────┬───────────────────┘
                           │
                           ▼
             ┌─────────────────────────┐
-            │     LLM (Claude)        │
-            │   Response Generation   │
+            │     Claude API          │
+            │   Response Synthesis    │
             └─────────────────────────┘
 ```
 
-### RAG Server
-- **Purpose**: Semantic search over D&D content
-- **Use Cases**: 
-  - "How does grappling work?"
-  - "What's in room A42?"
-  - "Tell me about the wererat in Region A"
-
-### SQLite Server  
-- **Purpose**: Structured data lookups
-- **Use Cases**:
-  - Spell details by name or level
-  - Monster stats by CR or type
-  - Equipment by category
+📄 **Full Architecture:** [ADR-001-system-architecture.md](docs/architecture/ADR-001-system-architecture.md)
 
 ## 📚 Content Sources
 
@@ -101,17 +103,25 @@ A massive dungeon crawl adventure covering levels 1-18.
 ```
 The-Worlds-Largest-Dungeon/
 ├── README.md
+├── docs/
+│   └── architecture/
+│       └── ADR-001-system-architecture.md
+│
+├── packages/                          # Application code (planned)
+│   ├── frontend/                      # Static web app
+│   ├── api-gateway/                   # Express router + LLM
+│   ├── sqlite-mcp/                    # Custom SQLite MCP server
+│   └── data-pipeline/                 # Markdown → SQLite parsers
+│
 ├── Resources/
 │   ├── markdown/
 │   │   ├── SRD 5.2/                   # D&D 5E rules (42 files)
-│   │   │   ├── 00-Legal-Information.md # Index
-│   │   │   ├── 01-12*.md              # Split chapters
+│   │   │   ├── 00-Legal-Information.md
 │   │   │   └── ...
 │   │   │
 │   │   └── World's Largest Dungeon/   # Adventure (36 files)
-│   │       ├── 00-Introduction.md     # Index
-│   │       ├── 01-04*.md              # Regions A-D
-│   │       └── 05-08*.md              # Bestiaries
+│   │       ├── 00-Introduction.md
+│   │       └── ...
 │   │
 │   └── pdf/                           # Source PDFs
 ```
