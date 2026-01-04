@@ -2,6 +2,24 @@
 
 A web application for quickly searching and retrieving D&D 5E rules and adventure content from *The World's Largest Dungeon*.
 
+## 📑 Table of Contents
+
+- [The World's Largest Dungeon - Rules Retrieval](#the-worlds-largest-dungeon---rules-retrieval)
+  - [📑 Table of Contents](#-table-of-contents)
+  - [🎯 Project Goal](#-project-goal)
+  - [🏗️ Architecture](#️-architecture)
+    - [RAG Server](#rag-server)
+    - [SQLite Server](#sqlite-server)
+  - [📚 Content Sources](#-content-sources)
+    - [SRD 5.2 (System Reference Document)](#srd-52-system-reference-document)
+    - [World's Largest Dungeon (Book 1)](#worlds-largest-dungeon-book-1)
+  - [🗂️ Repository Structure](#️-repository-structure)
+  - [📜 License](#-license)
+    - [SRD 5.2 Content](#srd-52-content)
+    - [World's Largest Dungeon](#worlds-largest-dungeon)
+
+---
+
 ## 🎯 Project Goal
 
 Build a fast, intelligent rules lookup tool that can:
