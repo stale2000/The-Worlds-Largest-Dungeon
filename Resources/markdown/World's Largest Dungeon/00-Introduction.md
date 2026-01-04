@@ -1,5 +1,60 @@
 # Introduction
 
+## 📚 File Navigation
+
+Navigate to the split region and bestiary files:
+
+### Introduction & Overview
+- [00 - Introduction](./00-Introduction.md) *(this file)*
+
+### Region A (Levels 1-3)
+- [01 - Region A (Overview)](./01-Region-A.md)
+- [01a - Region A: Rooms A1-A17](./01a-Region-A-A1-to-A17.md)
+- [01b - Region A: Rooms A18-A31](./01b-Region-A-A18-to-A31.md)
+- [01c - Region A: Rooms A32-A46, A56](./01c-Region-A-A32-to-A46-A56.md)
+- [01d - Region A: Rooms A46-A68](./01d-Region-A-A46-to-A68.md)
+- [01e - Region A: Rooms A69-A83](./01e-Region-A-A69-to-A83.md)
+- [01f - Region A: Rooms A84-A99](./01f-Region-A-A84-to-A99.md)
+- [01g - Region A: Rooms A100, A104-A109](./01g-Region-A-A100-A104-to-A109.md)
+- [01h - Region A: Rooms A110-A116](./01h-Region-A-A110-to-A116.md)
+
+### Region B - A Goblin Empire! (Levels 4-6)
+- [02 - Region B (Overview)](./02-Region-B.md)
+- [02a - Region B: Rooms B1, B48-B10](./02a-Region-B-B1-B48-to-B10.md)
+- [02b - Region B: Rooms B11-B29](./02b-Region-B-B11-to-B29.md)
+- [02c - Region B: Rooms B30-B42](./02c-Region-B-B30-to-B42.md)
+- [02d - Region B: Rooms B49, B68-B63](./02d-Region-B-B49-B68-to-B63.md)
+- [02e - Region B: Rooms B64-B80](./02e-Region-B-B64-to-B80.md)
+- [02f - Region B: Rooms B81-B96](./02f-Region-B-B81-to-B96.md)
+- [02g - Region B: Rooms B97-B119](./02g-Region-B-B97-to-B119.md)
+- [02h - Region B: Rooms B120, B132-B136](./02h-Region-B-B120-B132-to-B136.md)
+
+### Region C - The Final Option (Levels 7-9)
+- [03 - Region C (Overview)](./03-Region-C.md)
+- [03a - Region C: Rooms C1, C19-C21](./03a-Region-C-C1-C19-to-C20-C21.md)
+- [03b - Region C: Rooms C20-C34](./03b-Region-C-C20-to-C34.md)
+- [03c - Region C: Rooms C35-C52](./03c-Region-C-C35-to-C52.md)
+- [03d - Region C: Rooms C53-C75](./03d-Region-C-C53-to-C75.md)
+- [03e - Region C: Rooms C76-C96](./03e-Region-C-C76-to-C96.md)
+- [03f - Region C: Rooms C97-C110](./03f-Region-C-C97-to-C110.md)
+
+### Region D - The Tartarean Depths (Levels 14-18)
+- [04 - Region D (Overview)](./04-Region-D.md)
+- [04a - Region D: Rooms D1-D17](./04a-Region-D-D1-to-D17.md)
+- [04b - Region D: Rooms D18-D30](./04b-Region-D-D18-to-D30.md)
+- [04c - Region D: Rooms D31-D45](./04c-Region-D-D31-to-D45.md)
+- [04d - Region D: Rooms D46-D60](./04d-Region-D-D46-to-D60.md)
+- [04e - Region D: Rooms D61-D80](./04e-Region-D-D61-to-D80.md)
+- [04f - Region D: Rooms D81-D103](./04f-Region-D-D81-to-D103.md)
+
+### Bestiaries
+- [05 - Bestiary: Region A](./05-Bestiary-Region-A.md)
+- [06 - Bestiary: Region B](./06-Bestiary-Region-B.md)
+- [07 - Bestiary: Region C](./07-Bestiary-Region-C.md)
+- [08 - Bestiary: Region D](./08-Bestiary-Region-D.md)
+
+---
+
 ## Credits
 
 ### World's Largest Dungeon Platinum Team

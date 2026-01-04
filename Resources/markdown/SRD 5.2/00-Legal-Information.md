@@ -1,5 +1,69 @@
 # Legal Information
 
+## 📚 File Navigation
+
+Navigate to the split chapter files:
+
+### Core Rules
+- [00 - Legal Information](./00-Legal-Information.md) *(this file)*
+- [01 - Playing the Game](./01-Playing-the-Game.md)
+- [02 - Character Creation](./02-Character-Creation.md)
+
+### Classes
+- [03 - Classes (Overview)](./03-Classes.md)
+- [03a - Barbarian & Cleric](./03a-Classes-Barbarian-Cleric.md)
+- [03b - Druid & Monk](./03b-Classes-Druid-Monk.md)
+- [03c - Paladin & Rogue](./03c-Classes-Paladin-Rogue.md)
+- [03d - Sorcerer & Warlock](./03d-Classes-Sorcerer-Warlock.md)
+- [03e - Wizard](./03e-Classes-Wizard.md)
+
+### Character Options
+- [04 - Character Origins](./04-Character-Origins.md)
+- [05 - Feats](./05-Feats.md)
+- [06 - Equipment](./06-Equipment.md)
+
+### Spells
+- [07 - Spells (Overview)](./07-Spells.md)
+- [07a - Spells Part 1](./07a-Spells-Part1.md)
+- [07b - Spells Part 2](./07b-Spells-Part2.md)
+- [07c - Spells Part 3](./07c-Spells-Part3.md)
+- [07d - Spells Part 4](./07d-Spells-Part4.md)
+- [07e - Spells Part 5](./07e-Spells-Part5.md)
+- [07f - Spells Part 6](./07f-Spells-Part6.md)
+- [07g - Spells Part 7](./07g-Spells-Part7.md)
+- [07h - Spells Part 8](./07h-Spells-Part8.md)
+
+### Rules & Tools
+- [08 - Rules Glossary](./08-Rules-Glossary.md)
+- [09 - Gameplay Toolbox](./09-Gameplay-Toolbox.md)
+
+### Magic Items
+- [10 - Magic Items (Overview)](./10-Magic-Items.md)
+- [10a - Magic Items Part 1](./10a-Magic-Items-Part1.md)
+- [10b - Magic Items Part 2](./10b-Magic-Items-Part2.md)
+- [10c - Magic Items Part 3](./10c-Magic-Items-Part3.md)
+- [10d - Magic Items Part 4](./10d-Magic-Items-Part4.md)
+- [10e - Magic Items Part 5](./10e-Magic-Items-Part5.md)
+
+### Monsters
+- [11 - Monsters (Overview)](./11-Monsters.md)
+- [11a - Monsters Part 1](./11a-Monsters-Part1.md)
+- [11b - Monsters Part 2](./11b-Monsters-Part2.md)
+- [11c - Monsters Part 3](./11c-Monsters-Part3.md)
+- [11d - Monsters Part 4](./11d-Monsters-Part4.md)
+- [11e - Monsters Part 5](./11e-Monsters-Part5.md)
+- [11f - Monsters Part 6](./11f-Monsters-Part6.md)
+- [11g - Monsters Part 7](./11g-Monsters-Part7.md)
+- [11h - Monsters Part 8](./11h-Monsters-Part8.md)
+- [11i - Monsters Part 9](./11i-Monsters-Part9.md)
+
+### Animals
+- [12 - Animals (Overview)](./12-Animals.md)
+- [12a - Animals Part 1](./12a-Animals-Part1.md)
+- [12b - Animals Part 2](./12b-Animals-Part2.md)
+
+---
+
 ## License
 
 The System Reference Document 5.2 ("SRD 5.2") is provided to you free of charge by Wizards of the Coast LLC ("Wizards") under the terms of the Creative Commons Attribution 4.0 International License ("CC-BY-4.0").
@@ -22,43 +86,36 @@ Section 5 of CC-BY-4.0 includes a Disclaimer of Warranties and Limitation of Lia
 
 ### Playing the Game
 
-- [Rhythm of Play](#rhythm-of-play)
-- [The Six Abilities](#the-six-abilities)
-- [D20 Tests](#d20-tests)
-  - [Ability Checks](#ability-checks)
-  - [Saving Throws](#saving-throws)
-  - [Attack Rolls](#attack-rolls)
-  - [Advantage/Disadvantage](#advantagedisadvantage)
-- [Proficiency](#proficiency)
-- [Actions](#actions)
-  - [Bonus Actions](#bonus-actions)
-  - [Reactions](#reactions)
-- [Social Interaction](#social-interaction)
-- [Exploration](#exploration)
-  - [Vision and Light](#vision-and-light)
-  - [Hiding](#hiding)
-  - [Interacting with Objects](#interacting-with-objects)
-  - [Hazards](#hazards)
-  - [Travel](#travel)
-- [Combat](#combat)
-  - [The Order of Combat](#the-order-of-combat)
-  - [Movement and Position](#movement-and-position)
-  - [Making an Attack](#making-an-attack)
-  - [Ranged Attacks](#ranged-attacks)
-  - [Melee Attacks](#melee-attacks)
-  - [Mounted Combat](#mounted-combat)
-  - [Underwater Combat](#underwater-combat)
-- [Damage and Healing](#damage-and-healing)
-  - [Hit Points](#hit-points)
-  - [Damage Rolls](#damage-rolls)
-  - [Critical Hits](#critical-hits)
-  - [Saving Throws and Damage](#saving-throws-and-damage)
-  - [Damage Types](#damage-types)
-  - [Resistance and Vulnerability](#resistance-and-vulnerability)
-  - [Immunity](#immunity)
-  - [Healing](#healing)
-  - [Dropping to 0 Hit Points](#dropping-to-0-hit-points)
-  - [Temporary Hit Points](#temporary-hit-points)
+- [Legal Information](#legal-information)
+  - [📚 File Navigation](#-file-navigation)
+    - [Core Rules](#core-rules)
+    - [Classes](#classes)
+    - [Character Options](#character-options)
+    - [Spells](#spells)
+    - [Rules \& Tools](#rules--tools)
+    - [Magic Items](#magic-items)
+    - [Monsters](#monsters)
+    - [Animals](#animals)
+  - [License](#license)
+  - [Attribution Requirements](#attribution-requirements)
+  - [Liability](#liability)
+  - [Contents](#contents)
+    - [Playing the Game](#playing-the-game)
+    - [Character Creation](#character-creation)
+    - [Classes](#classes-1)
+    - [Character Origins](#character-origins)
+    - [Feats](#feats)
+    - [Equipment](#equipment)
+    - [Spells](#spells-1)
+    - [Rules Glossary](#rules-glossary)
+    - [Gameplay Toolbox](#gameplay-toolbox)
+    - [Magic Items](#magic-items-1)
+    - [Monsters](#monsters-1)
+    - [Animals](#animals-1)
+    - [Index of Stat Blocks](#index-of-stat-blocks)
+  - [Core Rules Principles](#core-rules-principles)
+    - [Exceptions Supersede General Rules](#exceptions-supersede-general-rules)
+    - [Round Down](#round-down)
 
 ### Character Creation
 
@@ -135,22 +192,31 @@ Section 5 of CC-BY-4.0 includes a Disclaimer of Warranties and Limitation of Lia
 ### Equipment
 
 - [Legal Information](#legal-information)
+  - [📚 File Navigation](#-file-navigation)
+    - [Core Rules](#core-rules)
+    - [Classes](#classes)
+    - [Character Options](#character-options)
+    - [Spells](#spells)
+    - [Rules \& Tools](#rules--tools)
+    - [Magic Items](#magic-items)
+    - [Monsters](#monsters)
+    - [Animals](#animals)
   - [License](#license)
   - [Attribution Requirements](#attribution-requirements)
   - [Liability](#liability)
   - [Contents](#contents)
     - [Playing the Game](#playing-the-game)
     - [Character Creation](#character-creation)
-    - [Classes](#classes)
+    - [Classes](#classes-1)
     - [Character Origins](#character-origins)
     - [Feats](#feats)
     - [Equipment](#equipment)
-    - [Spells](#spells)
+    - [Spells](#spells-1)
     - [Rules Glossary](#rules-glossary)
     - [Gameplay Toolbox](#gameplay-toolbox)
-    - [Magic Items](#magic-items)
-    - [Monsters](#monsters)
-    - [Animals](#animals)
+    - [Magic Items](#magic-items-1)
+    - [Monsters](#monsters-1)
+    - [Animals](#animals-1)
     - [Index of Stat Blocks](#index-of-stat-blocks)
   - [Core Rules Principles](#core-rules-principles)
     - [Exceptions Supersede General Rules](#exceptions-supersede-general-rules)
