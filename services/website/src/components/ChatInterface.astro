@@ -2,8 +2,11 @@
 /**
  * ChatInterface.astro
  * Main chat UI component for interacting with the WLD chat API.
- * Includes message history, input field, loading states, and side-by-side source display.
- * Now with enhanced User/System identifiers (Avatars).
+ *
+ * DESIGN SYSTEM: Mnehmos (Copper/Stone)
+ * - Primary: Copper (#b87333)
+ * - Backgrounds: Stone/Carbon (#1c1917, #292524)
+ * - Fonts: Space Grotesk (Headers), Inter (Body)
  */
 
 import { marked } from "marked";
@@ -15,9 +18,17 @@ interface Props {
 
 const {
   placeholder = "Ask about the dungeon, rules, monsters...",
-  welcomeMessage = "Welcome, adventurer! I am the Dungeon Master. Ask me anything about The World's Largest Dungeon, D&D 5e rules, monsters, spells, or items.",
+  welcomeMessage = "Welcome, adventurer. I am the Dungeon Master. The World's Largest Dungeon awaits your party. What do you seek?",
 } = Astro.props;
 ---
+
+<!-- Import Mnehmos Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+  rel="stylesheet"
+/>
 
 <div class="chat-interface" id="chat-interface">
   <!-- Main Chat Area -->
@@ -31,13 +42,15 @@ const {
       aria-label="Chat messages"
     >
       <!-- Welcome message -->
-      <div class="message message-system">
-        <div class="message-identity">
-          <div class="avatar system-avatar">🏰</div>
-          <span class="sender-name">System</span>
-        </div>
-        <div class="message-content">
-          <p>{welcomeMessage}</p>
+      <div class="message-row message-system-row">
+        <div class="message message-system">
+          <div class="message-identity">
+            <div class="avatar system-avatar">🏰</div>
+            <span class="sender-name">System</span>
+          </div>
+          <div class="message-content">
+            <p>{welcomeMessage}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -107,17 +120,33 @@ const {
 </div>
 
 <style>
+  /* === MNEHMOS DESIGN TOKENS === */
+  :root {
+    --copper: #b87333;
+    --copper-light: #d4956a;
+    --stone-900: #1c1917; /* Main BG */
+    --stone-800: #292524; /* Elevated BG */
+    --stone-700: #44403c; /* Borders */
+    --stone-200: #e7e5e4; /* Text Main */
+    --stone-400: #a8a29e; /* Text Muted */
+
+    --font-display: "Space Grotesk", sans-serif;
+    --font-body: "Inter", sans-serif;
+  }
+
   .chat-interface {
     display: flex;
     flex-direction: row;
     height: 100%;
-    min-height: 500px;
-    max-height: calc(100vh - 200px);
-    background: var(--color-bg-secondary);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
+    min-height: 600px;
+    max-height: calc(100vh - 100px);
+    background: var(--stone-900);
+    border: 1px solid var(--stone-700);
+    border-radius: 12px;
     overflow: hidden;
     position: relative;
+    font-family: var(--font-body);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   }
 
   /* Main Chat Area */
@@ -127,159 +156,209 @@ const {
     flex-direction: column;
     min-width: 0;
     position: relative;
+    background: radial-gradient(
+      circle at top right,
+      rgba(184, 115, 51, 0.05),
+      transparent 40%
+    );
   }
 
   /* Messages Area */
   .chat-messages {
     flex: 1;
     overflow-y: auto;
-    padding: var(--space-lg);
+    padding: 2rem;
     display: flex;
     flex-direction: column;
-    gap: var(--space-md);
+    gap: 1.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--stone-700) var(--stone-900);
   }
 
-  /* Sidebar Styling */
+  /* Webkit Scrollbar */
+  .chat-messages::-webkit-scrollbar {
+    width: 6px;
+  }
+  .chat-messages::-webkit-scrollbar-track {
+    background: var(--stone-900);
+  }
+  .chat-messages::-webkit-scrollbar-thumb {
+    background-color: var(--stone-700);
+    border-radius: 3px;
+  }
+
+  /* === MESSAGE ROWS (Fix Alignment) === */
+  .message-row {
+    display: flex;
+    width: 100%;
+  }
+
+  .message-user-row {
+    justify-content: flex-end; /* FORCE RIGHT */
+  }
+
+  .message-assistant-row {
+    justify-content: flex-start; /* FORCE LEFT */
+  }
+
+  .message-system-row {
+    justify-content: center;
+  }
+
+  /* === SIDEBAR STYLING === */
   .source-sidebar {
     width: 0;
-    background: var(--color-bg-tertiary);
-    border-left: 1px solid var(--color-border);
+    background: var(--stone-800);
+    border-left: 1px solid var(--stone-700);
     display: flex;
     flex-direction: column;
-    transition: width 0.3s ease;
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1); /* Elegant ease */
     overflow: hidden;
   }
 
   .source-sidebar.open {
-    width: 350px;
+    width: 400px;
   }
 
   .sidebar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-sm) var(--space-md);
-    background: var(--color-bg-elevated);
-    border-bottom: 1px solid var(--color-border);
-    min-height: 50px;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(to right, var(--copper), var(--copper-light));
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 
   .sidebar-header h3 {
     margin: 0;
     font-size: 1rem;
     font-family: var(--font-display);
-    color: var(--color-text-primary);
-    white-space: nowrap;
+    font-weight: 700;
+    letter-spacing: 0.02em;
   }
 
   .sidebar-close {
     background: none;
     border: none;
-    color: var(--color-text-secondary);
+    color: rgba(255, 255, 255, 0.8);
     font-size: 1.5rem;
     cursor: pointer;
     line-height: 1;
     padding: 0;
+    transition: color 0.2s;
   }
 
   .sidebar-close:hover {
-    color: var(--color-text-primary);
+    color: white;
   }
 
   .sidebar-content {
     flex: 1;
     overflow-y: auto;
-    padding: var(--space-md);
-
-    /* Ensure content is readable */
-    word-break: break-word;
+    padding: 1.5rem;
+    color: var(--stone-200);
   }
 
   .sidebar-empty {
     text-align: center;
-    color: var(--color-text-muted);
-    margin-top: var(--space-xl);
-    padding: var(--space-lg);
+    color: var(--stone-400);
+    margin-top: 3rem;
+    padding: 2rem;
   }
 
   .empty-icon {
-    font-size: 2rem;
+    font-size: 2.5rem;
     display: block;
-    margin-bottom: var(--space-sm);
-    opacity: 0.5;
+    margin-bottom: 1rem;
+    opacity: 0.3;
   }
 
-  /* Source Content in Sidebar */
+  /* Sidebar Source Content */
   :global(.sidebar-source-meta) {
-    margin-bottom: var(--space-md);
-    padding-bottom: var(--space-sm);
-    border-bottom: 1px solid var(--color-border-subtle);
+    background: var(--stone-900);
+    border: 1px solid var(--stone-700);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
   }
 
   :global(.sidebar-source-badge) {
     display: inline-block;
-    padding: 2px 8px;
-    border-radius: var(--radius-sm);
-    font-size: 0.7rem;
-    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
     text-transform: uppercase;
-    margin-right: var(--space-sm);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
   }
 
   :global(.sidebar-source-badge.rag) {
-    background: rgba(180, 120, 60, 0.15);
-    color: var(--color-accent-secondary);
-    border: 1px solid var(--color-accent-secondary);
+    background: rgba(184, 115, 51, 0.2);
+    color: var(--copper-light);
+    border: 1px solid var(--copper);
   }
 
   :global(.sidebar-source-badge.sqlite) {
-    background: rgba(201, 162, 39, 0.15);
-    color: var(--color-accent-primary);
-    border: 1px solid var(--color-accent-primary);
+    background: rgba(200, 200, 200, 0.1);
+    color: var(--stone-200);
+    border: 1px solid var(--stone-400);
   }
 
   :global(.sidebar-source-score) {
-    font-size: 0.8rem;
-    color: var(--color-success);
+    font-size: 0.85rem;
+    color: var(--copper);
     font-weight: 600;
+    float: right;
   }
 
   :global(.sidebar-source-ref) {
     display: block;
-    margin-top: var(--space-xs);
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--color-text-primary);
-    word-break: break-all;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    word-break: break-word;
+    margin-top: 0.25rem;
   }
 
   :global(.sidebar-source-text) {
     white-space: pre-wrap;
-    font-family: var(--font-body);
+    font-family:
+      "Consolas", monospace; /* Code font for potential source text */
     font-size: 0.9rem;
     line-height: 1.6;
-    color: var(--color-text-secondary);
+    color: var(--stone-400);
+    background: var(--stone-900);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--stone-700);
   }
 
   :global(.sidebar-source-link) {
-    display: inline-block;
-    margin-top: var(--space-md);
-    color: var(--color-accent-primary);
-    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 1.5rem;
+    color: var(--copper-light);
+    font-size: 0.9rem;
     text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
   }
 
   :global(.sidebar-source-link:hover) {
+    color: var(--copper);
     text-decoration: underline;
   }
 
-  /* Message Bubbles - UPDATED LAYOUT */
+  /* === MESSAGE BUBBLES === */
   .message {
     display: flex;
-    gap: var(--space-sm);
-    max-width: 90%; /* Increased width slightly */
+    gap: 1rem;
+    max-width: 85%;
     animation: messageSlideIn 0.3s ease;
-    align-items: flex-start; /* Align avatar with top */
+    align-items: flex-start;
   }
 
   @keyframes messageSlideIn {
@@ -293,290 +372,218 @@ const {
     }
   }
 
-  /* User Message: Row Reverse (Right aligned) */
+  /* User Message (Right) */
   .message-user {
-    align-self: flex-end;
-    flex-direction: row-reverse;
+    flex-direction: row-reverse; /* Avatar on right */
   }
 
-  /* Assistant/System Message: Row (Left aligned) */
+  /* Assistant Message (Left) */
   .message-assistant {
-    align-self: flex-start;
-    flex-direction: row;
+    flex-direction: row; /* Avatar on left */
   }
 
   .message-system {
     align-self: center;
-    flex-direction: column; /* Center system messages vertically stacked */
+    flex-direction: column;
     align-items: center;
     max-width: 80%;
   }
 
-  /* Identity Column (Avatar + Name) */
+  /* Identity Column */
   .message-identity {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    width: 60px; /* Fixed width for alignment */
+    gap: 6px;
+    width: 60px;
     flex-shrink: 0;
   }
 
   .avatar {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 1.25rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+  }
+
+  .avatar:hover {
+    transform: scale(1.05);
   }
 
   .user-avatar {
-    background: linear-gradient(
-      135deg,
-      var(--color-accent-secondary) 0%,
-      var(--color-accent-primary) 100%
-    );
-    color: var(--color-bg-primary);
-    border: none;
+    background: linear-gradient(135deg, var(--copper), var(--copper-light));
+    color: white;
+    border: 2px solid #fff;
   }
 
   .assistant-avatar {
-    background: var(--color-bg-tertiary);
-    color: var(--color-accent-primary);
-    border-color: var(--color-accent-primary);
+    background: var(--stone-800);
+    color: var(--copper);
+    border: 2px solid var(--copper);
+  }
+
+  .system-avatar {
+    background: transparent;
+    border: 1px dashed var(--stone-700);
+    color: var(--stone-400);
   }
 
   .sender-name {
-    font-size: 0.7rem;
-    color: var(--color-text-muted);
-    font-weight: 500;
+    font-size: 0.65rem;
+    color: var(--stone-400);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     text-align: center;
-    line-height: 1.2;
   }
 
-  /* Content area */
+  /* Content Bubble */
   .message-content {
-    padding: var(--space-md);
-    border-radius: var(--radius-md);
-    line-height: 1.5;
+    padding: 1.25rem;
+    border-radius: 12px;
+    line-height: 1.6;
     flex: 1;
-    min-width: 0; /* Text wrap fix */
+    min-width: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  /* Specific Bubble Styles */
   .message-user .message-content {
-    background: linear-gradient(
-      135deg,
-      var(--color-accent-secondary) 0%,
-      var(--color-accent-primary) 100%
-    );
-    color: var(--color-bg-primary);
-    border-bottom-right-radius: var(--radius-sm);
-    /* Arrow effect */
+    background: linear-gradient(135deg, var(--stone-800), var(--stone-900));
+    color: white;
+    border: 1px solid var(--stone-700);
     border-top-right-radius: 0;
   }
 
   .message-assistant .message-content {
-    background: var(--color-bg-tertiary);
-    border: 1px solid var(--color-border);
-    border-bottom-left-radius: var(--radius-sm);
-    /* Arrow effect */
+    background: var(--stone-800);
+    border: 1px solid var(--stone-700);
+    border-left: 2px solid var(--copper); /* Accent border */
     border-top-left-radius: 0;
   }
 
   .message-system .message-content {
-    background: var(--color-bg-elevated);
-    border: 1px dashed var(--color-border);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed var(--stone-700);
     text-align: center;
+    color: var(--stone-400);
     font-style: italic;
-    color: var(--color-text-secondary);
-  }
-
-  .message-system .message-identity {
-    display: none; /* Hide standard identity for system center messages, or customizing it */
-  }
-
-  /* Restore system icon inside content if needed, or style differently */
-  .message-system .message-content::before {
-    content: "🏰";
-    display: block;
-    font-size: 1.5rem;
-    margin-bottom: var(--space-xs);
   }
 
   .message-content p {
     margin: 0;
   }
-
   .message-content p + p {
-    margin-top: var(--space-sm);
+    margin-top: 0.75rem;
   }
 
-  /* Markdown Content Styles */
+  /* === MARKDOWN TYPOGRAPHY === */
   .markdown-content {
-    line-height: 1.6;
+    color: var(--stone-200);
+    font-size: 1rem;
   }
 
   .markdown-content h1,
   .markdown-content h2,
-  .markdown-content h3,
-  .markdown-content h4 {
-    color: var(--color-accent-primary);
-    margin: var(--space-md) 0 var(--space-sm) 0;
+  .markdown-content h3 {
+    color: white;
     font-family: var(--font-display);
+    font-weight: 700;
+    margin: 1.5rem 0 0.75rem 0;
+    line-height: 1.2;
   }
 
   .markdown-content h1 {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
+    border-bottom: 2px solid var(--copper);
+    padding-bottom: 0.5rem;
+    display: inline-block;
   }
   .markdown-content h2 {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
+    color: var(--copper-light);
   }
   .markdown-content h3 {
-    font-size: 1.1rem;
-  }
-  .markdown-content h4 {
-    font-size: 1rem;
-  }
-
-  .markdown-content h1:first-child,
-  .markdown-content h2:first-child,
-  .markdown-content h3:first-child {
-    margin-top: 0;
+    font-size: 1.15rem;
+    color: var(--stone-200);
   }
 
   .markdown-content strong {
-    color: var(--color-text-primary);
+    color: var(--copper);
     font-weight: 600;
-  }
-
-  .markdown-content em {
-    font-style: italic;
-    color: var(--color-text-secondary);
   }
 
   .markdown-content ul,
   .markdown-content ol {
-    margin: var(--space-sm) 0;
-    padding-left: var(--space-lg);
+    margin: 1rem 0;
+    padding-left: 1.5rem;
   }
 
   .markdown-content li {
-    margin: var(--space-xs) 0;
+    margin: 0.5rem 0;
+    color: var(--stone-200);
   }
 
   .markdown-content li::marker {
-    color: var(--color-accent-primary);
+    color: var(--copper);
   }
 
-  /* Tables */
-  .markdown-content table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: var(--space-md) 0;
-    font-size: 0.9rem;
-  }
-
-  .markdown-content th,
-  .markdown-content td {
-    padding: var(--space-sm);
-    border: 1px solid var(--color-border);
-    text-align: left;
-  }
-
-  .markdown-content th {
-    background: var(--color-bg-elevated);
-    color: var(--color-accent-primary);
-    font-weight: 600;
-    font-family: var(--font-display);
-  }
-
-  .markdown-content tr:nth-child(even) {
-    background: rgba(255, 255, 255, 0.02);
-  }
-
-  .markdown-content tr:hover {
-    background: rgba(201, 162, 39, 0.05);
-  }
-
-  /* Code */
+  /* Code Blocks */
   .markdown-content code {
-    background: var(--color-bg-elevated);
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--copper-light);
     padding: 2px 6px;
-    border-radius: var(--radius-sm);
-    font-family: var(--font-mono);
-    font-size: 0.875em;
-    color: var(--color-accent-secondary);
+    border-radius: 4px;
+    font-family: "Consolas", monospace;
+    font-size: 0.9em;
   }
 
   .markdown-content pre {
-    background: var(--color-bg-elevated);
-    padding: var(--space-md);
-    border-radius: var(--radius-md);
+    background: #000;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--stone-700);
     overflow-x: auto;
-    margin: var(--space-md) 0;
-    border: 1px solid var(--color-border);
+    margin: 1rem 0;
   }
 
   .markdown-content pre code {
     background: none;
     padding: 0;
-    font-size: 0.85rem;
+    color: var(--stone-200);
   }
 
-  /* Blockquotes */
   .markdown-content blockquote {
-    border-left: 3px solid var(--color-accent-primary);
-    margin: var(--space-md) 0;
-    padding: var(--space-sm) var(--space-md);
-    background: rgba(201, 162, 39, 0.05);
+    border-left: 4px solid var(--copper);
+    background: rgba(184, 115, 51, 0.05); /* Tint of copper */
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
     font-style: italic;
-    color: var(--color-text-secondary);
+    color: var(--stone-400);
+    border-radius: 0 8px 8px 0;
   }
 
-  .markdown-content blockquote p {
-    margin: 0;
-  }
-
-  /* Horizontal Rule */
-  .markdown-content hr {
-    border: none;
-    border-top: 1px solid var(--color-border);
-    margin: var(--space-lg) 0;
-  }
-
-  /* Links */
-  .markdown-content a {
-    color: var(--color-accent-primary);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-
-  .markdown-content a:hover {
-    color: var(--color-accent-secondary);
-  }
-
-  /* Sources - Clickable Buttons */
+  /* Sources Helper */
   .message-sources {
-    margin-top: var(--space-sm);
-    padding-top: var(--space-sm);
-    border-top: 1px solid var(--color-border-subtle);
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--stone-700);
     display: flex;
     flex-wrap: wrap;
+    gap: 8px;
     align-items: center;
-    gap: 6px;
   }
 
   .sources-label {
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    color: var(--stone-400);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     margin-right: 4px;
   }
 
@@ -584,189 +591,170 @@ const {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 28px;
-    height: 28px;
-    padding: 0 10px;
-    background: #c9a227;
-    color: #0d0d0d;
-    border: 2px solid #e6b800;
+    height: 24px;
+    min-width: 24px;
+    padding: 0 8px;
+    background: var(--stone-800);
+    color: var(--copper);
+    border: 1px solid var(--copper);
     border-radius: 4px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    font-family: "Consolas", monospace;
     cursor: pointer;
-    transition: all 0.15s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
   }
 
   .source-btn:hover {
-    background: #e6b800;
-    transform: scale(1.1) translateY(-2px);
-    box-shadow: 0 4px 8px rgba(201, 162, 39, 0.4);
+    background: var(--copper);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(184, 115, 51, 0.3);
   }
 
-  .source-btn:active {
-    transform: scale(0.95);
-  }
-
-  .source-btn.rag {
-    background: #8b6914;
-    border-color: #c9a227;
-  }
-
-  .source-btn.rag:hover {
-    background: #a57d1a;
-  }
-
-  .source-btn.sqlite {
-    background: #c9a227;
-    border-color: #e6b800;
-  }
-
-  /* Tool Used Badge */
+  /* Tool Badge */
   .tool-badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-size: 0.7rem;
+    gap: 6px;
     padding: 2px 8px;
-    border-radius: var(--radius-sm);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-weight: 600;
-    margin-right: var(--space-xs);
+    margin-right: 8px;
+    border: 1px solid transparent;
   }
 
   .tool-badge.sqlite {
-    background: rgba(201, 162, 39, 0.15);
-    color: var(--color-accent-primary);
-    border: 1px solid var(--color-accent-primary);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--stone-400);
+    border-color: var(--stone-700);
   }
-
   .tool-badge.rag {
-    background: rgba(180, 120, 60, 0.15);
-    color: var(--color-accent-secondary);
-    border: 1px solid var(--color-accent-secondary);
+    background: rgba(184, 115, 51, 0.1);
+    color: var(--copper);
+    border-color: var(--copper);
   }
-
   .tool-badge.both {
     background: linear-gradient(
       135deg,
-      rgba(201, 162, 39, 0.15) 0%,
-      rgba(180, 120, 60, 0.15) 100%
+      rgba(184, 115, 51, 0.2) 0%,
+      rgba(0, 0, 0, 0.2) 100%
     );
-    color: var(--color-text-primary);
-    border: 1px solid var(--color-border);
+    color: white;
+    border-color: var(--copper-light);
   }
 
   /* Input Form */
   .chat-input-form {
     display: flex;
-    gap: var(--space-sm);
-    padding: var(--space-md);
-    background: var(--color-bg-tertiary);
-    border-top: 1px solid var(--color-border);
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--stone-800);
+    border-top: 1px solid var(--stone-700);
   }
 
   .input-wrapper {
     flex: 1;
+    position: relative;
   }
 
   .chat-input {
     width: 100%;
-    padding: var(--space-md);
-    background: var(--color-bg-secondary);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    color: var(--color-text-primary);
+    padding: 1rem;
+    background: var(--stone-900);
+    border: 1px solid var(--stone-700);
+    border-radius: 8px;
+    color: white;
     font-family: var(--font-body);
     font-size: 1rem;
     resize: none;
-    min-height: 48px;
-    max-height: 120px;
-    transition:
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
+    min-height: 56px;
+    max-height: 150px;
+    transition: all 0.2s;
   }
 
   .chat-input::placeholder {
-    color: var(--color-text-muted);
+    color: var(--stone-400);
   }
 
   .chat-input:focus {
     outline: none;
-    border-color: var(--color-accent-primary);
-    box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+    border-color: var(--copper);
+    box-shadow: 0 0 0 2px rgba(184, 115, 51, 0.2);
   }
 
   .chat-submit {
     display: flex;
     align-items: center;
-    gap: var(--space-xs);
-    padding: var(--space-md) var(--space-lg);
-    background: linear-gradient(
-      135deg,
-      var(--color-accent-secondary) 0%,
-      var(--color-accent-primary) 100%
-    );
+    gap: 0.5rem;
+    padding: 0 2rem;
+    background: linear-gradient(135deg, var(--copper), var(--copper-light));
     border: none;
-    border-radius: var(--radius-md);
-    color: var(--color-bg-primary);
+    border-radius: 8px;
+    color: white;
     font-family: var(--font-display);
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     cursor: pointer;
-    transition:
-      transform var(--transition-fast),
-      box-shadow var(--transition-fast);
+    transition: all 0.2s;
   }
 
   .chat-submit:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md), var(--shadow-glow);
-  }
-
-  .chat-submit:active:not(:disabled) {
-    transform: translateY(0);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(184, 115, 51, 0.4);
   }
 
   .chat-submit:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
+    filter: grayscale(1);
   }
 
-  .submit-icon {
-    font-size: 1.1rem;
-  }
-
-  /* Loading State */
+  /* Loading */
   .chat-loading {
     position: absolute;
-    bottom: 80px;
+    bottom: 90px;
     left: 50%;
     transform: translateX(-50%);
     display: none;
     align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-sm) var(--space-md);
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
-    box-shadow: var(--shadow-md);
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--stone-800);
+    border: 1px solid var(--copper);
+    border-radius: 30px;
+    font-size: 0.85rem;
+    color: var(--copper-light);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     z-index: 10;
   }
 
   .chat-loading.visible {
     display: flex;
+    animation: slideUpFade 0.3s ease;
+  }
+
+  @keyframes slideUpFade {
+    from {
+      opacity: 0;
+      transform: translate(-50%, 10px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
   }
 
   .loading-spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid var(--color-border);
-    border-top-color: var(--color-accent-primary);
+    width: 18px;
+    height: 18px;
+    border: 2px solid transparent;
+    border-top-color: var(--copper);
+    border-right-color: var(--copper);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
@@ -777,74 +765,57 @@ const {
     }
   }
 
-  /* Error Display */
+  /* Error */
   .chat-error {
     position: absolute;
-    top: var(--space-md);
-    left: var(--space-md);
-    right: var(--space-md);
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
     display: none;
     align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-md);
-    background: rgba(201, 68, 68, 0.1);
-    border: 1px solid var(--color-error);
-    border-radius: var(--radius-md);
-    color: var(--color-error);
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: rgba(127, 29, 29, 0.9);
+    border: 1px solid #ef4444;
+    border-radius: 8px;
+    color: white;
     z-index: 20;
+    backdrop-filter: blur(8px);
   }
 
   .chat-error.visible {
     display: flex;
+    animation: slideDownFade 0.3s ease;
   }
 
-  .error-icon {
-    font-size: 1.25rem;
+  @keyframes slideDownFade {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -20px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
   }
 
-  .error-message {
-    flex: 1;
-  }
-
-  .error-dismiss {
-    background: none;
-    border: none;
-    color: var(--color-error);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-    opacity: 0.7;
-    transition: opacity var(--transition-fast);
-  }
-
-  .error-dismiss:hover {
-    opacity: 1;
-  }
-
-  /* Responsive: On mobile, sidebar becomes an overlay */
+  /* Responsive */
   @media (max-width: 768px) {
     .chat-interface {
       flex-direction: column;
     }
-
     .source-sidebar {
       position: absolute;
       top: 0;
       right: 0;
       bottom: 0;
       z-index: 50;
-      box-shadow: var(--shadow-xl);
+      box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
     }
-  }
-
-  /* Accessibility: Reduced motion */
-  @media (prefers-reduced-motion: reduce) {
-    .message {
-      animation: none;
-    }
-    .source-sidebar {
-      transition: none;
+    .source-sidebar.open {
+      width: 85%;
     }
   }
 </style>
@@ -852,18 +823,14 @@ const {
 <script>
   /**
    * Chat Interface Client-Side Logic
-   * Handles form submission, API calls, message rendering, and sidebar control
+   * Handles form submission, API calls, message rendering, and sidebar control.
    */
 
   import { marked } from "marked";
 
-  // Configure marked for safe HTML output
-  marked.setOptions({
-    breaks: true, // Convert \n to <br>
-    gfm: true, // GitHub Flavored Markdown
-  });
+  // Configure marked with GFM
+  marked.setOptions({ breaks: true, gfm: true });
 
-  // Configuration
   const CHAT_API_URL = import.meta.env.CHAT_API_URL || "http://localhost:8080";
 
   // DOM Elements
@@ -880,16 +847,13 @@ const {
   const errorMessage = document.getElementById("error-message");
   const errorDismiss = document.getElementById("error-dismiss");
 
-  // Sidebar Elements
   const sourceSidebar = document.getElementById("source-sidebar");
   const sidebarContent = document.getElementById("sidebar-content");
   const sidebarClose = document.getElementById("sidebar-close");
 
-  // State
   let isLoading = false;
-  let currentSources: SourceReference[] = []; // Store sources for sidebar display
+  let currentSources: SourceReference[] = [];
 
-  // Types
   interface SourceReference {
     type: "rag" | "sqlite";
     reference: string;
@@ -905,15 +869,12 @@ const {
     tool_used: "sqlite" | "rag" | "both" | "none";
   }
 
-  // Auto-resize textarea
   function autoResize(textarea: HTMLTextAreaElement) {
     textarea.style.height = "auto";
-    textarea.style.height = Math.min(textarea.scrollHeight, 120) + "px";
+    textarea.style.height = Math.min(textarea.scrollHeight, 150) + "px";
   }
 
   chatInput?.addEventListener("input", () => autoResize(chatInput));
-
-  // Handle Enter key (send) vs Shift+Enter (new line)
   chatInput?.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -921,35 +882,23 @@ const {
     }
   });
 
-  // Dismiss error
   errorDismiss?.addEventListener("click", hideError);
-
-  // Close sidebar
   sidebarClose?.addEventListener("click", closeSidebar);
 
-  // Form submission
   chatForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const message = chatInput?.value.trim();
     if (!message || isLoading) return;
 
-    // Add user message to chat
     addMessage(message, "user");
-
-    // Clear input and reset height
     chatInput.value = "";
     autoResize(chatInput);
-
-    // Show loading state
     setLoading(true);
     hideError();
-    // Close sidebar on new query to focus on chat
     closeSidebar();
 
     try {
       const response = await sendMessage(message);
-      // Store sources for access
       currentSources = response.sources || [];
       addMessage(
         response.answer,
@@ -967,29 +916,19 @@ const {
     }
   });
 
-  /**
-   * Send message to chat API
-   */
   async function sendMessage(message: string): Promise<ChatResponse> {
     const response = await fetch(`${CHAT_API_URL}/chat`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
     });
-
     if (!response.ok) {
       const errorText = await response.text().catch(() => "Unknown error");
       throw new Error(`Request failed: ${response.status} - ${errorText}`);
     }
-
     return response.json();
   }
 
-  /**
-   * Add a message to the chat display
-   */
   function addMessage(
     content: string,
     type: "user" | "assistant" | "system",
@@ -997,13 +936,16 @@ const {
     queryType?: string,
     toolUsed?: "sqlite" | "rag" | "both" | "none"
   ) {
+    // Wrap message in a row div to control alignment rigorously
+    const rowEl = document.createElement("div");
+    rowEl.className = `message-row message-${type}-row`;
+
     const messageEl = document.createElement("div");
     messageEl.className = `message message-${type}`;
 
-    // Identity Section (Avatar + Name)
+    // IDENTITY
     const identityEl = document.createElement("div");
     identityEl.className = "message-identity";
-
     const avatarEl = document.createElement("div");
     const nameEl = document.createElement("span");
     nameEl.className = "sender-name";
@@ -1015,21 +957,19 @@ const {
     } else if (type === "assistant") {
       avatarEl.className = "avatar assistant-avatar";
       avatarEl.textContent = "🧙‍♂️";
-      nameEl.textContent = "Dungeon Master";
+      nameEl.textContent = "DM";
     }
 
-    // System messages handle identity via CSS hiding usually, but we can set it
     if (type !== "system") {
       identityEl.appendChild(avatarEl);
       identityEl.appendChild(nameEl);
       messageEl.appendChild(identityEl);
     }
 
-    // Content Section
+    // CONTENT
     const contentEl = document.createElement("div");
     contentEl.className = "message-content";
 
-    // Render markdown for assistant messages, plain text for user
     if (type === "assistant") {
       const markdownHtml = marked.parse(content) as string;
       const markdownWrapper = document.createElement("div");
@@ -1037,7 +977,6 @@ const {
       markdownWrapper.innerHTML = markdownHtml;
       contentEl.appendChild(markdownWrapper);
     } else {
-      // User messages are plain text
       const paragraphs = content.split("\n\n").filter((p) => p.trim());
       paragraphs.forEach((p) => {
         const pEl = document.createElement("p");
@@ -1046,12 +985,11 @@ const {
       });
     }
 
-    // Add tool used badge and source buttons for assistant messages
+    // Sources & Badges
     if (type === "assistant" && (sources?.length || toolUsed)) {
       const sourcesEl = document.createElement("div");
       sourcesEl.className = "message-sources";
 
-      // Add tool badge first
       if (toolUsed && toolUsed !== "none") {
         const toolBadge = document.createElement("span");
         toolBadge.className = `tool-badge ${toolUsed}`;
@@ -1063,7 +1001,6 @@ const {
         sourcesEl.appendChild(toolBadge);
       }
 
-      // Add source buttons
       if (sources && sources.length > 0) {
         const label = document.createElement("span");
         label.className = "sources-label";
@@ -1075,28 +1012,23 @@ const {
           btn.className = `source-btn ${source.type}`;
           btn.textContent = `${index + 1}`;
           btn.title = source.reference;
-          // IMPORTANT: Update to open sidebar instead of modal
           btn.addEventListener("click", (e) => {
-            e.stopPropagation(); // Prevent bubbling
+            e.stopPropagation();
             showSourceInSidebar(index);
           });
           sourcesEl.appendChild(btn);
         });
       }
-
       contentEl.appendChild(sourcesEl);
     }
 
     messageEl.appendChild(contentEl);
-    chatMessages?.appendChild(messageEl);
+    rowEl.appendChild(messageEl); // Add bubble to row
+    chatMessages?.appendChild(rowEl); // Add row to chat
 
-    // Scroll to bottom
     scrollToBottom();
   }
 
-  /**
-   * Display source details in the sidebar
-   */
   function showSourceInSidebar(index: number) {
     const source = currentSources[index];
     if (!source) return;
@@ -1112,63 +1044,37 @@ const {
         <a href="${source.url}" target="_blank" rel="noopener noreferrer" class="sidebar-source-link">📂 View on GitHub →</a>
       `;
     }
-
     openSidebar();
   }
 
   function openSidebar() {
     sourceSidebar?.classList.add("open");
   }
-
   function closeSidebar() {
     sourceSidebar?.classList.remove("open");
   }
-
-  /**
-   * Scroll chat to bottom
-   */
   function scrollToBottom() {
-    if (chatMessages) {
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+    if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  /**
-   * Set loading state
-   */
   function setLoading(loading: boolean) {
     isLoading = loading;
-
-    if (chatSubmit) {
-      chatSubmit.disabled = loading;
-    }
-
+    if (chatSubmit) chatSubmit.disabled = loading;
     if (chatLoading) {
       chatLoading.classList.toggle("visible", loading);
       chatLoading.setAttribute("aria-hidden", (!loading).toString());
     }
-
-    if (chatInput) {
-      chatInput.disabled = loading;
-    }
+    if (chatInput) chatInput.disabled = loading;
   }
 
-  /**
-   * Show error message
-   */
   function showError(message: string) {
-    if (errorMessage) {
-      errorMessage.textContent = message;
-    }
+    if (errorMessage) errorMessage.textContent = message;
     if (chatError) {
       chatError.classList.add("visible");
       chatError.setAttribute("aria-hidden", "false");
     }
   }
 
-  /**
-   * Hide error message
-   */
   function hideError() {
     if (chatError) {
       chatError.classList.remove("visible");
@@ -1176,6 +1082,5 @@ const {
     }
   }
 
-  // Initial scroll to bottom
   scrollToBottom();
 </script>
