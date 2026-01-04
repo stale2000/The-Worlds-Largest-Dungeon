@@ -427,11 +427,92 @@ const {
   :global(.markdown-content blockquote) {
     border-left: 4px solid var(--copper);
     background: rgba(184, 115, 51, 0.05); /* Tint of copper */
-    margin: 1rem 0;
-    padding: 0.75rem 1rem;
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
     font-style: italic;
-    color: var(--stone-400);
+    color: var(--stone-200);
     border-radius: 0 8px 8px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  /* === PREMIUM TABLES === */
+  :global(.markdown-content table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    overflow: hidden; /* For rounded corners on header */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  :global(.markdown-content thead) {
+    background: linear-gradient(to right, var(--stone-800), var(--stone-900));
+    border-bottom: 2px solid var(--copper);
+  }
+
+  :global(.markdown-content th) {
+    padding: 1rem;
+    text-align: left;
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--copper);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.85rem;
+  }
+
+  :global(.markdown-content td) {
+    padding: 1rem;
+    border-bottom: 1px solid var(--stone-700);
+    color: var(--stone-200);
+    vertical-align: top;
+  }
+
+  :global(.markdown-content tr:last-child td) {
+    border-bottom: none;
+  }
+
+  :global(.markdown-content tr:nth-child(even)) {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  :global(.markdown-content tr:hover) {
+    background: rgba(184, 115, 51, 0.05); /* Copper tint hover */
+  }
+
+  /* Strong and Emphasis */
+  :global(.markdown-content strong) {
+    color: var(--copper-light);
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(184, 115, 51, 0.2);
+  }
+
+  :global(.markdown-content em) {
+    color: #fff;
+    font-style: italic;
+    opacity: 0.9;
+  }
+
+  /* Lists */
+  :global(.markdown-content ul) {
+    list-style: none; /* Custom bullets */
+    padding-left: 1rem;
+  }
+
+  :global(.markdown-content ul li) {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  :global(.markdown-content ul li::before) {
+    content: "•";
+    color: var(--copper);
+    position: absolute;
+    left: 0;
+    font-size: 1.2rem;
+    line-height: 1;
   }
 
   /* Sources Helper */
