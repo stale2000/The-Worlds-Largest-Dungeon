@@ -1,0 +1,205 @@
+---
+/**
+ * SearchBar.astro
+ * Search input component for quick queries.
+ * Can be used standalone or as part of a larger search interface.
+ */
+
+interface Props {
+  id?: string;
+  placeholder?: string;
+  label?: string;
+  autofocus?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const {
+  id = 'search-bar',
+  placeholder = 'Search the dungeon...',
+  label = 'Search',
+  autofocus = false,
+  size = 'md',
+} = Astro.props;
+
+const sizeClasses = {
+  sm: 'search-bar--sm',
+  md: 'search-bar--md',
+  lg: 'search-bar--lg',
+};
+---
+
+<div class={`search-bar ${sizeClasses[size]}`}>
+  <label for={id} class="search-label">
+    <span class="visually-hidden">{label}</span>
+    <span class="search-icon" aria-hidden="true">🔍</span>
+  </label>
+  <input
+    type="search"
+    id={id}
+    name="query"
+    class="search-input"
+    placeholder={placeholder}
+    autocomplete="off"
+    autofocus={autofocus}
+  />
+  <button type="button" class="search-clear" aria-label="Clear search" hidden>
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+
+<style>
+  .search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .search-label {
+    position: absolute;
+    left: var(--space-md);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .search-icon {
+    font-size: 1rem;
+    opacity: 0.6;
+    transition: opacity var(--transition-fast);
+  }
+
+  .search-bar:focus-within .search-icon {
+    opacity: 1;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: var(--space-md) var(--space-md) var(--space-md) calc(var(--space-md) * 2 + 1rem);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    transition: 
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast),
+      background-color var(--transition-fast);
+  }
+
+  .search-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+    background: var(--color-bg-tertiary);
+  }
+
+  .search-input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .search-clear {
+    position: absolute;
+    right: var(--space-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--color-bg-tertiary);
+    border: none;
+    border-radius: 50%;
+    color: var(--color-text-secondary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: 
+      background-color var(--transition-fast),
+      color var(--transition-fast);
+  }
+
+  .search-clear:hover {
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+  }
+
+  .search-clear[hidden] {
+    display: none;
+  }
+
+  /* Size variants */
+  .search-bar--sm .search-input {
+    padding: var(--space-sm) var(--space-sm) var(--space-sm) calc(var(--space-sm) * 2 + 1rem);
+    font-size: 0.875rem;
+  }
+
+  .search-bar--sm .search-label {
+    left: var(--space-sm);
+  }
+
+  .search-bar--sm .search-icon {
+    font-size: 0.875rem;
+  }
+
+  .search-bar--lg .search-input {
+    padding: var(--space-lg) var(--space-lg) var(--space-lg) calc(var(--space-lg) * 2 + 1.25rem);
+    font-size: 1.125rem;
+  }
+
+  .search-bar--lg .search-label {
+    left: var(--space-lg);
+  }
+
+  .search-bar--lg .search-icon {
+    font-size: 1.25rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .search-bar--lg .search-input {
+      padding: var(--space-md) var(--space-md) var(--space-md) calc(var(--space-md) * 2 + 1rem);
+      font-size: 1rem;
+    }
+
+    .search-bar--lg .search-label {
+      left: var(--space-md);
+    }
+
+    .search-bar--lg .search-icon {
+      font-size: 1rem;
+    }
+  }
+</style>
+
+<script>
+  // Clear button functionality
+  document.querySelectorAll('.search-bar').forEach((searchBar) => {
+    const input = searchBar.querySelector('.search-input') as HTMLInputElement;
+    const clearBtn = searchBar.querySelector('.search-clear') as HTMLButtonElement;
+
+    if (!input || !clearBtn) return;
+
+    // Show/hide clear button based on input value
+    const updateClearButton = () => {
+      clearBtn.hidden = !input.value;
+    };
+
+    input.addEventListener('input', updateClearButton);
+    updateClearButton();
+
+    // Clear input on button click
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      updateClearButton();
+      input.focus();
+      
+      // Dispatch input event for any listeners
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  });
+</script>

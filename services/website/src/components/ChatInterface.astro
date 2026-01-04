@@ -1,0 +1,611 @@
+---
+/**
+ * ChatInterface.astro
+ * Main chat UI component for interacting with the WLD chat API.
+ * Includes message history, input field, and loading states.
+ */
+
+interface Props {
+  placeholder?: string;
+  welcomeMessage?: string;
+}
+
+const { 
+  placeholder = "Ask about the dungeon, rules, monsters...",
+  welcomeMessage = "Welcome, adventurer! Ask me anything about The World's Largest Dungeon, D&D 5e rules, monsters, spells, or items."
+} = Astro.props;
+---
+
+<div class="chat-interface" id="chat-interface">
+  <!-- Message History -->
+  <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-label="Chat messages">
+    <!-- Welcome message -->
+    <div class="message message-system">
+      <div class="message-content">
+        <span class="message-icon">🏰</span>
+        <p>{welcomeMessage}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <form class="chat-input-form" id="chat-form">
+    <div class="input-wrapper">
+      <label for="chat-input" class="visually-hidden">Your message</label>
+      <textarea
+        id="chat-input"
+        name="message"
+        class="chat-input"
+        placeholder={placeholder}
+        rows="1"
+        required
+        aria-describedby="input-hint"
+      ></textarea>
+      <span id="input-hint" class="visually-hidden">Press Enter to send, Shift+Enter for new line</span>
+    </div>
+    <button type="submit" class="chat-submit" id="chat-submit" aria-label="Send message">
+      <span class="submit-icon">⚔️</span>
+      <span class="submit-text">Send</span>
+    </button>
+  </form>
+
+  <!-- Loading Indicator -->
+  <div class="chat-loading" id="chat-loading" aria-hidden="true">
+    <div class="loading-spinner"></div>
+    <span>The dungeon master is pondering...</span>
+  </div>
+
+  <!-- Error Display -->
+  <div class="chat-error" id="chat-error" role="alert" aria-hidden="true">
+    <span class="error-icon">⚠️</span>
+    <span class="error-message" id="error-message"></span>
+    <button class="error-dismiss" id="error-dismiss" aria-label="Dismiss error">×</button>
+  </div>
+</div>
+
+<style>
+  .chat-interface {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 500px;
+    max-height: calc(100vh - 200px);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Messages Area */
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  /* Message Bubbles */
+  .message {
+    display: flex;
+    gap: var(--space-sm);
+    max-width: 85%;
+    animation: messageSlideIn 0.3s ease;
+  }
+
+  @keyframes messageSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .message-user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+
+  .message-assistant {
+    align-self: flex-start;
+  }
+
+  .message-system {
+    align-self: center;
+    max-width: 90%;
+  }
+
+  .message-content {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    line-height: 1.5;
+  }
+
+  .message-user .message-content {
+    background: linear-gradient(135deg, var(--color-accent-secondary) 0%, var(--color-accent-primary) 100%);
+    color: var(--color-bg-primary);
+    border-bottom-right-radius: var(--radius-sm);
+  }
+
+  .message-assistant .message-content {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-bottom-left-radius: var(--radius-sm);
+  }
+
+  .message-system .message-content {
+    background: var(--color-bg-elevated);
+    border: 1px dashed var(--color-border);
+    text-align: center;
+    font-style: italic;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    justify-content: center;
+  }
+
+  .message-icon {
+    font-size: 1.25rem;
+  }
+
+  .message-content p {
+    margin: 0;
+  }
+
+  .message-content p + p {
+    margin-top: var(--space-sm);
+  }
+
+  /* Sources */
+  .message-sources {
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--color-border-subtle);
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+
+  .message-sources summary {
+    cursor: pointer;
+    color: var(--color-accent-primary);
+    font-weight: 600;
+  }
+
+  .message-sources ul {
+    margin: var(--space-xs) 0 0 var(--space-md);
+    padding: 0;
+    list-style: none;
+  }
+
+  .message-sources li {
+    padding: var(--space-xs) 0;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .message-sources li::before {
+    content: "📜 ";
+  }
+
+  /* Query Type Badge */
+  .query-type {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-muted);
+    margin-top: var(--space-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Input Form */
+  .chat-input-form {
+    display: flex;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: var(--color-bg-tertiary);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .input-wrapper {
+    flex: 1;
+  }
+
+  .chat-input {
+    width: 100%;
+    padding: var(--space-md);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    resize: none;
+    min-height: 48px;
+    max-height: 120px;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .chat-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .chat-input:focus {
+    outline: none;
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+  }
+
+  .chat-submit {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-md) var(--space-lg);
+    background: linear-gradient(135deg, var(--color-accent-secondary) 0%, var(--color-accent-primary) 100%);
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--color-bg-primary);
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .chat-submit:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md), var(--shadow-glow);
+  }
+
+  .chat-submit:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .chat-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .submit-icon {
+    font-size: 1.1rem;
+  }
+
+  /* Loading State */
+  .chat-loading {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    box-shadow: var(--shadow-md);
+  }
+
+  .chat-loading.visible {
+    display: flex;
+  }
+
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--color-border);
+    border-top-color: var(--color-accent-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Error Display */
+  .chat-error {
+    position: absolute;
+    top: var(--space-md);
+    left: var(--space-md);
+    right: var(--space-md);
+    display: none;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: rgba(201, 68, 68, 0.1);
+    border: 1px solid var(--color-error);
+    border-radius: var(--radius-md);
+    color: var(--color-error);
+  }
+
+  .chat-error.visible {
+    display: flex;
+  }
+
+  .error-icon {
+    font-size: 1.25rem;
+  }
+
+  .error-message {
+    flex: 1;
+  }
+
+  .error-dismiss {
+    background: none;
+    border: none;
+    color: var(--color-error);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity var(--transition-fast);
+  }
+
+  .error-dismiss:hover {
+    opacity: 1;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .chat-interface {
+      min-height: 400px;
+      max-height: calc(100vh - 150px);
+    }
+
+    .chat-messages {
+      padding: var(--space-md);
+    }
+
+    .message {
+      max-width: 95%;
+    }
+
+    .chat-input-form {
+      padding: var(--space-sm);
+    }
+
+    .chat-submit {
+      padding: var(--space-md);
+    }
+
+    .submit-text {
+      display: none;
+    }
+  }
+
+  /* Accessibility: Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .message {
+      animation: none;
+    }
+
+    .loading-spinner {
+      animation: none;
+      border-top-color: var(--color-accent-primary);
+      opacity: 0.5;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Chat Interface Client-Side Logic
+   * Handles form submission, API calls, and message rendering
+   */
+
+  // Configuration
+  const CHAT_API_URL = import.meta.env.CHAT_API_URL || 'http://localhost:8080';
+
+  // DOM Elements
+  const chatInterface = document.getElementById('chat-interface');
+  const chatMessages = document.getElementById('chat-messages');
+  const chatForm = document.getElementById('chat-form') as HTMLFormElement;
+  const chatInput = document.getElementById('chat-input') as HTMLTextAreaElement;
+  const chatSubmit = document.getElementById('chat-submit') as HTMLButtonElement;
+  const chatLoading = document.getElementById('chat-loading');
+  const chatError = document.getElementById('chat-error');
+  const errorMessage = document.getElementById('error-message');
+  const errorDismiss = document.getElementById('error-dismiss');
+
+  // State
+  let isLoading = false;
+
+  // Types
+  interface ChatResponse {
+    answer: string;
+    sources?: Array<{ uri: string; title?: string; score?: number }>;
+    query_type?: 'semantic' | 'structured' | 'hybrid';
+  }
+
+  // Auto-resize textarea
+  function autoResize(textarea: HTMLTextAreaElement) {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+  }
+
+  chatInput?.addEventListener('input', () => autoResize(chatInput));
+
+  // Handle Enter key (send) vs Shift+Enter (new line)
+  chatInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      chatForm?.requestSubmit();
+    }
+  });
+
+  // Dismiss error
+  errorDismiss?.addEventListener('click', hideError);
+
+  // Form submission
+  chatForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const message = chatInput?.value.trim();
+    if (!message || isLoading) return;
+
+    // Add user message to chat
+    addMessage(message, 'user');
+    
+    // Clear input and reset height
+    chatInput.value = '';
+    autoResize(chatInput);
+    
+    // Show loading state
+    setLoading(true);
+    hideError();
+
+    try {
+      const response = await sendMessage(message);
+      addMessage(response.answer, 'assistant', response.sources, response.query_type);
+    } catch (error) {
+      showError(error instanceof Error ? error.message : 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  /**
+   * Send message to chat API
+   */
+  async function sendMessage(message: string): Promise<ChatResponse> {
+    const response = await fetch(`${CHAT_API_URL}/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Request failed: ${response.status} - ${errorText}`);
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Add a message to the chat display
+   */
+  function addMessage(
+    content: string,
+    type: 'user' | 'assistant' | 'system',
+    sources?: ChatResponse['sources'],
+    queryType?: string
+  ) {
+    const messageEl = document.createElement('div');
+    messageEl.className = `message message-${type}`;
+
+    const contentEl = document.createElement('div');
+    contentEl.className = 'message-content';
+
+    // Parse content for basic formatting (paragraphs)
+    const paragraphs = content.split('\n\n').filter(p => p.trim());
+    paragraphs.forEach(p => {
+      const pEl = document.createElement('p');
+      pEl.textContent = p.trim();
+      contentEl.appendChild(pEl);
+    });
+
+    // Add sources if present (assistant messages)
+    if (sources && sources.length > 0 && type === 'assistant') {
+      const sourcesEl = document.createElement('details');
+      sourcesEl.className = 'message-sources';
+      
+      const summary = document.createElement('summary');
+      summary.textContent = `${sources.length} source${sources.length > 1 ? 's' : ''}`;
+      sourcesEl.appendChild(summary);
+
+      const ul = document.createElement('ul');
+      sources.forEach(source => {
+        const li = document.createElement('li');
+        li.textContent = source.title || source.uri;
+        ul.appendChild(li);
+      });
+      sourcesEl.appendChild(ul);
+      
+      contentEl.appendChild(sourcesEl);
+    }
+
+    // Add query type badge if present
+    if (queryType && type === 'assistant') {
+      const badge = document.createElement('span');
+      badge.className = 'query-type';
+      badge.textContent = queryType;
+      contentEl.appendChild(badge);
+    }
+
+    messageEl.appendChild(contentEl);
+    chatMessages?.appendChild(messageEl);
+
+    // Scroll to bottom
+    scrollToBottom();
+  }
+
+  /**
+   * Scroll chat to bottom
+   */
+  function scrollToBottom() {
+    if (chatMessages) {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  }
+
+  /**
+   * Set loading state
+   */
+  function setLoading(loading: boolean) {
+    isLoading = loading;
+    
+    if (chatSubmit) {
+      chatSubmit.disabled = loading;
+    }
+    
+    if (chatLoading) {
+      chatLoading.classList.toggle('visible', loading);
+      chatLoading.setAttribute('aria-hidden', (!loading).toString());
+    }
+    
+    if (chatInput) {
+      chatInput.disabled = loading;
+    }
+  }
+
+  /**
+   * Show error message
+   */
+  function showError(message: string) {
+    if (errorMessage) {
+      errorMessage.textContent = message;
+    }
+    if (chatError) {
+      chatError.classList.add('visible');
+      chatError.setAttribute('aria-hidden', 'false');
+    }
+  }
+
+  /**
+   * Hide error message
+   */
+  function hideError() {
+    if (chatError) {
+      chatError.classList.remove('visible');
+      chatError.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  // Initial scroll to bottom
+  scrollToBottom();
+</script>

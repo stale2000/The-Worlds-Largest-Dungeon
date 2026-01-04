@@ -1,0 +1,28 @@
+# =============================================================================
+# Railway Deployment Configuration - Chat API
+# =============================================================================
+# Central chat middleware service that routes queries to RAG and SQLite servers
+# =============================================================================
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "node dist/index.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[service]
+internalPort = 8080
+
+# Environment variables are set via Railway dashboard:
+# - OPENROUTER_API_KEY: API key for OpenRouter LLM service
+# - RAG_SERVER_URL: URL of the RAG server (e.g., https://rag-server-xxx.railway.app)
+# - SQLITE_SERVER_URL: URL of the SQLite server (e.g., https://sqlite-server-xxx.railway.app)
+# - GITHUB_OWNER: GitHub repository owner (default: mnehmos)
+# - GITHUB_REPO: GitHub repository name (default: The-Worlds-Largest-Dungeon)
+# - GITHUB_BRANCH: GitHub branch (default: master)
+# - OPENROUTER_MODEL: LLM model to use (default: microsoft/wizardlm-2-8x22b)

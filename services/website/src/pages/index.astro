@@ -1,0 +1,232 @@
+---
+/**
+ * index.astro
+ * Main page for The World's Largest Dungeon chat interface.
+ * Provides AI-powered Q&A about the dungeon, D&D 5e rules, and more.
+ */
+
+import Layout from '../layouts/Layout.astro';
+import ChatInterface from '../components/ChatInterface.astro';
+---
+
+<Layout title="The World's Largest Dungeon - AI Assistant">
+  <div class="home-container">
+    <section class="intro-section">
+      <div class="intro-content">
+        <h2>Your AI Dungeon Master Companion</h2>
+        <p>
+          Ask me about room descriptions, monster stats, traps, treasures, 
+          D&D 5e rules, spells, or anything else you need for your adventure 
+          through The World's Largest Dungeon.
+        </p>
+        <div class="features">
+          <div class="feature">
+            <span class="feature-icon">🏰</span>
+            <span class="feature-text">Room Details</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">👹</span>
+            <span class="feature-text">Monster Stats</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">📖</span>
+            <span class="feature-text">D&D 5e Rules</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">✨</span>
+            <span class="feature-text">Spells & Items</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chat-section">
+      <ChatInterface 
+        placeholder="Ask about rooms, monsters, rules, spells..."
+        welcomeMessage="Greetings, adventurer! I am your guide through The World's Largest Dungeon. Ask me about any room, creature, trap, or rule - I have access to the full dungeon guide and D&D 5e SRD."
+      />
+    </section>
+
+    <section class="tips-section">
+      <h3>💡 Try asking:</h3>
+      <div class="tips-grid">
+        <button class="tip-button" data-question="What's in Room A1?">
+          "What's in Room A1?"
+        </button>
+        <button class="tip-button" data-question="How does the Fireball spell work?">
+          "How does Fireball work?"
+        </button>
+        <button class="tip-button" data-question="What are the stats for a Goblin?">
+          "Goblin stats?"
+        </button>
+        <button class="tip-button" data-question="What traps are in Region B?">
+          "Traps in Region B?"
+        </button>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .home-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  /* Intro Section */
+  .intro-section {
+    text-align: center;
+    padding: var(--space-lg) 0;
+  }
+
+  .intro-content h2 {
+    font-size: 1.5rem;
+    color: var(--color-accent-primary);
+    margin-bottom: var(--space-md);
+  }
+
+  .intro-content p {
+    max-width: 600px;
+    margin: 0 auto var(--space-lg);
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+  }
+
+  .features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-md);
+  }
+
+  .feature {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+  }
+
+  .feature-icon {
+    font-size: 1.1rem;
+  }
+
+  /* Chat Section */
+  .chat-section {
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Tips Section */
+  .tips-section {
+    padding: var(--space-lg) 0;
+  }
+
+  .tips-section h3 {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-md);
+    text-align: center;
+  }
+
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-sm);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .tip-button {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: 
+      border-color var(--transition-fast),
+      color var(--transition-fast),
+      background-color var(--transition-fast);
+  }
+
+  .tip-button:hover {
+    border-color: var(--color-accent-primary);
+    color: var(--color-accent-primary);
+    background: var(--color-bg-tertiary);
+  }
+
+  .tip-button:active {
+    transform: translateY(1px);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .intro-content h2 {
+      font-size: 1.25rem;
+    }
+
+    .features {
+      gap: var(--space-sm);
+    }
+
+    .feature {
+      font-size: 0.8rem;
+      padding: var(--space-xs) var(--space-sm);
+    }
+
+    .tips-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .features {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .feature {
+      width: 100%;
+      max-width: 200px;
+      justify-content: center;
+    }
+
+    .tips-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Quick question buttons
+  document.querySelectorAll('.tip-button').forEach((button) => {
+    button.addEventListener('click', () => {
+      const question = button.getAttribute('data-question');
+      if (!question) return;
+
+      const chatInput = document.getElementById('chat-input') as HTMLTextAreaElement;
+      const chatForm = document.getElementById('chat-form') as HTMLFormElement;
+
+      if (chatInput && chatForm) {
+        chatInput.value = question;
+        chatInput.focus();
+        
+        // Trigger auto-resize
+        chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        // Auto-submit after a brief delay for UX
+        setTimeout(() => {
+          chatForm.requestSubmit();
+        }, 100);
+      }
+    });
+  });
+</script>

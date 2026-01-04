@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  test-website:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: services/website/package-lock.json
+          
+      - name: Install and Build
+        working-directory: services/website
+        run: npm ci && npm run build
+
+  test-chat-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: services/chat-api/package-lock.json
+          
+      - name: Install and Build
+        working-directory: services/chat-api
+        run: npm ci && npm run build
+
+  test-sqlite-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: services/sqlite-server/package-lock.json
+          
+      - name: Install and Build
+        working-directory: services/sqlite-server
+        run: npm ci && npm run build
+
+  test-rag-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: services/rag-server/package-lock.json
+          
+      - name: Install and Build
+        working-directory: services/rag-server
+        run: npm ci && npm run build
+
+  test-data-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tools/data-pipeline/package-lock.json
+          
+      - name: Install and Build
+        working-directory: tools/data-pipeline
+        run: npm ci && npm run build

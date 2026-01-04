@@ -1,0 +1,369 @@
+---
+/**
+ * ResultsPanel.astro
+ * Displays search results or response data with source citations.
+ * Used to show RAG retrieval results alongside answers.
+ */
+
+interface Source {
+  uri: string;
+  title?: string;
+  score?: number;
+  snippet?: string;
+}
+
+interface Props {
+  id?: string;
+  title?: string;
+  emptyMessage?: string;
+  showScores?: boolean;
+}
+
+const {
+  id = 'results-panel',
+  title = 'Sources',
+  emptyMessage = 'No sources available',
+  showScores = false,
+} = Astro.props;
+---
+
+<div class="results-panel" id={id}>
+  <header class="results-header">
+    <h3 class="results-title">
+      <span class="results-icon">📜</span>
+      {title}
+    </h3>
+    <span class="results-count" id={`${id}-count`}>0 results</span>
+  </header>
+  
+  <div class="results-content" id={`${id}-content`}>
+    <p class="results-empty">{emptyMessage}</p>
+  </div>
+</div>
+
+<style>
+  .results-panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-bg-tertiary);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .results-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .results-icon {
+    font-size: 1.1rem;
+  }
+
+  .results-count {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-sm);
+  }
+
+  .results-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-md);
+    max-height: 400px;
+  }
+
+  .results-empty {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-style: italic;
+    padding: var(--space-xl);
+    margin: 0;
+  }
+
+  /* Result Item Styles */
+  :global(.result-item) {
+    padding: var(--space-md);
+    margin-bottom: var(--space-sm);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    transition: 
+      border-color var(--transition-fast),
+      background-color var(--transition-fast);
+  }
+
+  :global(.result-item:hover) {
+    border-color: var(--color-border);
+    background: var(--color-bg-elevated);
+  }
+
+  :global(.result-item:last-child) {
+    margin-bottom: 0;
+  }
+
+  :global(.result-item-header) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xs);
+  }
+
+  :global(.result-item-title) {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-accent-primary);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  :global(.result-item-title a) {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  :global(.result-item-title a:hover) {
+    text-decoration: underline;
+  }
+
+  :global(.result-item-score) {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+    padding: 2px 6px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-sm);
+  }
+
+  :global(.result-item-score--high) {
+    color: var(--color-success);
+    background: rgba(74, 156, 109, 0.1);
+  }
+
+  :global(.result-item-score--medium) {
+    color: var(--color-warning);
+    background: rgba(212, 168, 75, 0.1);
+  }
+
+  :global(.result-item-score--low) {
+    color: var(--color-text-muted);
+  }
+
+  :global(.result-item-uri) {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+    word-break: break-all;
+    margin-bottom: var(--space-sm);
+  }
+
+  :global(.result-item-snippet) {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  :global(.result-item-snippet mark) {
+    background: rgba(201, 162, 39, 0.2);
+    color: var(--color-text-primary);
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+
+  /* Loading State */
+  :global(.results-loading) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-xl);
+    color: var(--color-text-secondary);
+  }
+
+  :global(.results-loading-spinner) {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-border);
+    border-top-color: var(--color-accent-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .results-header {
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    .results-content {
+      padding: var(--space-sm);
+      max-height: 300px;
+    }
+
+    :global(.result-item) {
+      padding: var(--space-sm);
+    }
+  }
+</style>
+
+<script>
+  /**
+   * ResultsPanel Client-Side Logic
+   * Provides methods to update results dynamically
+   */
+
+  interface Source {
+    uri: string;
+    title?: string;
+    score?: number;
+    snippet?: string;
+  }
+
+  // Make updateResults available globally for other components
+  declare global {
+    interface Window {
+      updateResultsPanel: (panelId: string, sources: Source[], showScores?: boolean) => void;
+      clearResultsPanel: (panelId: string, message?: string) => void;
+      setResultsLoading: (panelId: string, loading: boolean) => void;
+    }
+  }
+
+  /**
+   * Update results panel with sources
+   */
+  window.updateResultsPanel = (panelId: string, sources: Source[], showScores = false) => {
+    const content = document.getElementById(`${panelId}-content`);
+    const count = document.getElementById(`${panelId}-count`);
+
+    if (!content) return;
+
+    // Update count
+    if (count) {
+      count.textContent = `${sources.length} result${sources.length !== 1 ? 's' : ''}`;
+    }
+
+    // Clear content
+    content.innerHTML = '';
+
+    // Show empty message if no sources
+    if (sources.length === 0) {
+      const emptyEl = document.createElement('p');
+      emptyEl.className = 'results-empty';
+      emptyEl.textContent = 'No sources available';
+      content.appendChild(emptyEl);
+      return;
+    }
+
+    // Render sources
+    sources.forEach((source) => {
+      const itemEl = document.createElement('div');
+      itemEl.className = 'result-item';
+
+      const headerEl = document.createElement('div');
+      headerEl.className = 'result-item-header';
+
+      const titleEl = document.createElement('h4');
+      titleEl.className = 'result-item-title';
+      titleEl.textContent = source.title || extractFilename(source.uri);
+      headerEl.appendChild(titleEl);
+
+      if (showScores && source.score !== undefined) {
+        const scoreEl = document.createElement('span');
+        scoreEl.className = `result-item-score ${getScoreClass(source.score)}`;
+        scoreEl.textContent = `${(source.score * 100).toFixed(0)}%`;
+        headerEl.appendChild(scoreEl);
+      }
+
+      itemEl.appendChild(headerEl);
+
+      const uriEl = document.createElement('p');
+      uriEl.className = 'result-item-uri';
+      uriEl.textContent = source.uri;
+      itemEl.appendChild(uriEl);
+
+      if (source.snippet) {
+        const snippetEl = document.createElement('p');
+        snippetEl.className = 'result-item-snippet';
+        snippetEl.innerHTML = source.snippet;
+        itemEl.appendChild(snippetEl);
+      }
+
+      content.appendChild(itemEl);
+    });
+  };
+
+  /**
+   * Clear results panel
+   */
+  window.clearResultsPanel = (panelId: string, message = 'No sources available') => {
+    const content = document.getElementById(`${panelId}-content`);
+    const count = document.getElementById(`${panelId}-count`);
+
+    if (content) {
+      content.innerHTML = `<p class="results-empty">${message}</p>`;
+    }
+
+    if (count) {
+      count.textContent = '0 results';
+    }
+  };
+
+  /**
+   * Show loading state
+   */
+  window.setResultsLoading = (panelId: string, loading: boolean) => {
+    const content = document.getElementById(`${panelId}-content`);
+
+    if (!content) return;
+
+    if (loading) {
+      content.innerHTML = `
+        <div class="results-loading">
+          <div class="results-loading-spinner"></div>
+          <span>Searching...</span>
+        </div>
+      `;
+    }
+  };
+
+  /**
+   * Helper: Extract filename from URI
+   */
+  function extractFilename(uri: string): string {
+    const parts = uri.split('/');
+    return parts[parts.length - 1] || uri;
+  }
+
+  /**
+   * Helper: Get CSS class based on score
+   */
+  function getScoreClass(score: number): string {
+    if (score >= 0.8) return 'result-item-score--high';
+    if (score >= 0.5) return 'result-item-score--medium';
+    return 'result-item-score--low';
+  }
+</script>

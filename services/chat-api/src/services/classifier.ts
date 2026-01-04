@@ -1,0 +1,270 @@
+/**
+ * Query Classifier - Determines whether queries should be routed to RAG, SQLite, or both
+ * 
+ * Classification Rules:
+ * - Structured queries (lists, specific lookups) → SQLite
+ * - Semantic queries (explanations, lore, gameplay) → RAG
+ * - Hybrid queries (room lookups with context) → Both
+ */
+
+export interface ClassificationResult {
+  type: 'semantic' | 'structured' | 'hybrid';
+  confidence: number;
+  routing: {
+    rag: boolean;
+    sqlite: boolean;
+    sqliteEndpoints?: ('spells' | 'monsters' | 'equipment' | 'rooms')[];
+  };
+  extractedEntities: {
+    roomId?: string;
+    region?: string;
+    spellName?: string;
+    monsterName?: string;
+    equipmentName?: string;
+    level?: number;
+    cr?: number | string;
+  };
+  reasoning: string;
+}
+
+// Keywords that indicate structured database queries
+const STRUCTURED_KEYWORDS = [
+  'list',
+  'all',
+  'how many',
+  'count',
+  'level',
+  'cr',
+  'challenge rating',
+  'type',
+  'category',
+  'school',
+  'class',
+  'find',
+  'show me',
+  'what are',
+  'which',
+];
+
+// Entity types that map to SQLite tables
+const ENTITY_KEYWORDS = {
+  spells: ['spell', 'spells', 'cantrip', 'cantrips', 'ritual', 'rituals', 'cast', 'casting'],
+  monsters: ['monster', 'monsters', 'creature', 'creatures', 'enemy', 'enemies', 'cr', 'challenge rating'],
+  equipment: ['equipment', 'item', 'items', 'weapon', 'weapons', 'armor', 'armour', 'tool', 'tools', 'gear'],
+  rooms: ['room', 'rooms', 'chamber', 'chambers', 'area', 'corridor', 'hallway'],
+};
+
+// Patterns for extracting specific identifiers
+const ROOM_ID_PATTERN = /\b([A-D])[-\s]?(\d{1,3})\b/i;
+const REGION_PATTERN = /\b(region|area)\s*([A-D])\b/i;
+const SPELL_LEVEL_PATTERN = /\blevel\s*(\d)\b|\b(\d)(?:st|nd|rd|th)?\s*level\b/i;
+const CR_PATTERN = /\bcr\s*(\d+(?:\/\d+)?)\b|\bchallenge\s*rating\s*(\d+(?:\/\d+)?)\b/i;
+
+// Keywords indicating semantic/explanation queries
+const SEMANTIC_KEYWORDS = [
+  'how does',
+  'how do',
+  'what is',
+  'what are',
+  'explain',
+  'describe',
+  'tell me about',
+  'what happens',
+  'what\'s',
+  'overview',
+  'guide',
+  'rules for',
+  'mechanics',
+  'strategy',
+  'lore',
+  'story',
+  'background',
+  'history',
+];
+
+/**
+ * Classifies a user query to determine optimal routing
+ * 
+ * @param query - The user's natural language query
+ * @returns Classification result with routing decisions
+ */
+export function classifyQuery(query: string): ClassificationResult {
+  const lowerQuery = query.toLowerCase().trim();
+  const words = lowerQuery.split(/\s+/);
+  
+  // Initialize result
+  const result: ClassificationResult = {
+    type: 'semantic',
+    confidence: 0.5,
+    routing: {
+      rag: true,
+      sqlite: false,
+      sqliteEndpoints: [],
+    },
+    extractedEntities: {},
+    reasoning: '',
+  };
+  
+  // Extract entities
+  const roomMatch = query.match(ROOM_ID_PATTERN);
+  if (roomMatch) {
+    result.extractedEntities.roomId = `${roomMatch[1].toUpperCase()}${roomMatch[2]}`;
+    result.extractedEntities.region = roomMatch[1].toUpperCase();
+  }
+  
+  const regionMatch = query.match(REGION_PATTERN);
+  if (regionMatch) {
+    result.extractedEntities.region = regionMatch[2].toUpperCase();
+  }
+  
+  const levelMatch = query.match(SPELL_LEVEL_PATTERN);
+  if (levelMatch) {
+    result.extractedEntities.level = parseInt(levelMatch[1] || levelMatch[2], 10);
+  }
+  
+  const crMatch = query.match(CR_PATTERN);
+  if (crMatch) {
+    result.extractedEntities.cr = crMatch[1] || crMatch[2];
+  }
+  
+  // Score structured indicators
+  let structuredScore = 0;
+  const matchedStructuredKeywords: string[] = [];
+  
+  for (const keyword of STRUCTURED_KEYWORDS) {
+    if (lowerQuery.includes(keyword)) {
+      structuredScore += 1;
+      matchedStructuredKeywords.push(keyword);
+    }
+  }
+  
+  // Detect entity types mentioned
+  const detectedEntities: ('spells' | 'monsters' | 'equipment' | 'rooms')[] = [];
+  
+  for (const [entityType, keywords] of Object.entries(ENTITY_KEYWORDS)) {
+    for (const keyword of keywords) {
+      if (words.includes(keyword) || lowerQuery.includes(keyword)) {
+        detectedEntities.push(entityType as keyof typeof ENTITY_KEYWORDS);
+        structuredScore += 0.5;
+        break;
+      }
+    }
+  }
+  
+  // Score semantic indicators
+  let semanticScore = 0;
+  const matchedSemanticKeywords: string[] = [];
+  
+  for (const keyword of SEMANTIC_KEYWORDS) {
+    if (lowerQuery.includes(keyword)) {
+      semanticScore += 1;
+      matchedSemanticKeywords.push(keyword);
+    }
+  }
+  
+  // Room-specific queries are hybrid (need both structured data and lore context)
+  if (result.extractedEntities.roomId) {
+    result.type = 'hybrid';
+    result.confidence = 0.9;
+    result.routing = {
+      rag: true,
+      sqlite: true,
+      sqliteEndpoints: ['rooms'],
+    };
+    result.reasoning = `Query mentions specific room ${result.extractedEntities.roomId}, routing to both RAG for context and SQLite for structured room data.`;
+    return result;
+  }
+  
+  // Region queries are also hybrid
+  if (result.extractedEntities.region && !result.extractedEntities.roomId) {
+    result.type = 'hybrid';
+    result.confidence = 0.8;
+    result.routing = {
+      rag: true,
+      sqlite: true,
+      sqliteEndpoints: ['rooms'],
+    };
+    result.reasoning = `Query mentions Region ${result.extractedEntities.region}, routing to both RAG for lore and SQLite for room listings.`;
+    return result;
+  }
+  
+  // Strong structured indicators
+  if (structuredScore > semanticScore && structuredScore >= 2) {
+    result.type = 'structured';
+    result.confidence = Math.min(0.95, 0.6 + structuredScore * 0.1);
+    result.routing = {
+      rag: false,
+      sqlite: true,
+      sqliteEndpoints: detectedEntities.length > 0 ? [...new Set(detectedEntities)] : ['spells', 'monsters'],
+    };
+    result.reasoning = `Structured query detected (keywords: ${matchedStructuredKeywords.join(', ')}). Routing to SQLite for ${detectedEntities.join(', ') || 'entity lookup'}.`;
+    return result;
+  }
+  
+  // Mixed signals - use hybrid
+  if (structuredScore > 0 && semanticScore > 0) {
+    result.type = 'hybrid';
+    result.confidence = 0.7;
+    result.routing = {
+      rag: true,
+      sqlite: true,
+      sqliteEndpoints: detectedEntities.length > 0 ? [...new Set(detectedEntities)] : undefined,
+    };
+    result.reasoning = `Mixed query type (structured: ${matchedStructuredKeywords.join(', ')}, semantic: ${matchedSemanticKeywords.join(', ')}). Routing to both sources.`;
+    return result;
+  }
+  
+  // Default to semantic (RAG)
+  result.type = 'semantic';
+  result.confidence = semanticScore > 0 ? Math.min(0.9, 0.6 + semanticScore * 0.1) : 0.6;
+  result.routing = {
+    rag: true,
+    sqlite: false,
+  };
+  result.reasoning = semanticScore > 0
+    ? `Semantic query detected (keywords: ${matchedSemanticKeywords.join(', ')}). Routing to RAG for contextual information.`
+    : `No strong signals detected, defaulting to RAG for general context search.`;
+  
+  return result;
+}
+
+/**
+ * Extract a potential spell name from the query
+ */
+export function extractSpellName(query: string): string | undefined {
+  // Common spell name patterns
+  const patterns = [
+    /cast(?:ing)?\s+(?:the\s+)?["']?([a-z\s]+)["']?\s*(?:spell)?/i,
+    /(?:the\s+)?["']?([a-z\s]+)["']?\s+spell/i,
+    /spell\s+(?:called\s+)?["']?([a-z\s]+)["']?/i,
+  ];
+  
+  for (const pattern of patterns) {
+    const match = query.match(pattern);
+    if (match?.[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  return undefined;
+}
+
+/**
+ * Extract a potential monster/creature name from the query
+ */
+export function extractMonsterName(query: string): string | undefined {
+  const patterns = [
+    /(?:fight(?:ing)?|encounter(?:ing)?|facing)\s+(?:a\s+)?["']?([a-z\s]+)["']?/i,
+    /["']?([a-z\s]+)["']?\s+(?:monster|creature|enemy)/i,
+    /(?:about|the)\s+["']?([a-z\s]+)["']?\s+(?:stat(?:s)?|abilities|attacks)/i,
+  ];
+  
+  for (const pattern of patterns) {
+    const match = query.match(pattern);
+    if (match?.[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  return undefined;
+}

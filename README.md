@@ -1,138 +1,192 @@
-# The World's Largest Dungeon - Rules Retrieval
+# The World's Largest Dungeon - AI Assistant
 
-A web application for quickly searching and retrieving D&D 5E rules and adventure content from *The World's Largest Dungeon*.
+An AI-powered assistant for "The World's Largest Dungeon" D&D campaign, featuring semantic search over dungeon content and structured queries for D&D 5E rules.
 
-## 📑 Table of Contents
-
-- [The World's Largest Dungeon - Rules Retrieval](#the-worlds-largest-dungeon---rules-retrieval)
-  - [📑 Table of Contents](#-table-of-contents)
-  - [🎯 Project Goal](#-project-goal)
-  - [🛠️ Tech Stack](#️-tech-stack)
-  - [🏗️ Architecture](#️-architecture)
-  - [📚 Content Sources](#-content-sources)
-    - [SRD 5.2 (System Reference Document)](#srd-52-system-reference-document)
-    - [World's Largest Dungeon (Book 1)](#worlds-largest-dungeon-book-1)
-  - [🗂️ Repository Structure](#️-repository-structure)
-  - [📜 License](#-license)
-    - [SRD 5.2 Content](#srd-52-content)
-    - [World's Largest Dungeon](#worlds-largest-dungeon)
-
----
-
-## 🎯 Project Goal
-
-Build a fast, intelligent rules lookup tool that can:
-- Search D&D 5E rules from the SRD 5.2 (spells, monsters, classes, items, etc.)
-- Retrieve room descriptions, encounters, and monster stats from The World's Largest Dungeon
-- Provide natural language answers using RAG (Retrieval-Augmented Generation)
-
-## 🛠️ Tech Stack
-
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Frontend** | [Astro](https://astro.build) | Static site with islands architecture |
-| **RAG** | [Index Foundry](https://github.com/mnehmos/mnehmos.index-foundry.mcp) | Vector search, embeddings, semantic retrieval |
-| **Structured Data** | SQLite + Custom MCP Server | Spell/monster/equipment/room queries |
-| **LLM** | Claude API | Response synthesis |
-| **Deployment** | Railway | Multi-service hosting |
-
-## 🏗️ Architecture
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     Web Application                         │
-│                   (Search Interface)                        │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   API Gateway (Express)                     │
-│                   Query Classification                      │
-└──────────┬──────────────────────────────────┬───────────────┘
-           │                                  │
-           ▼                                  ▼
-┌─────────────────────┐            ┌─────────────────────┐
-│   Index Foundry     │            │   SQLite MCP        │
-│   (RAG Server)      │            │   (Custom Server)   │
-│                     │            │                     │
-│ • Semantic search   │            │ • Spell queries     │
-│ • Vector embeddings │            │ • Monster lookups   │
-│ • Context retrieval │            │ • Equipment tables  │
-└─────────────────────┘            │ • Room data         │
-                                   └─────────────────────┘
-           │                                  │
-           └──────────────┬───────────────────┘
-                          │
-                          ▼
-            ┌─────────────────────────┐
-            │     Claude API          │
-            │   Response Synthesis    │
-            └─────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         GitHub Pages                                     │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │                    Astro Website                                   │  │
+│  │                  services/website/                                 │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           Railway                                        │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │              Chat API (Middleware)                                 │  │
+│  │              services/chat-api/                                    │  │
+│  └──────────────────────┬─────────────────────┬──────────────────────┘  │
+│                         │                     │                          │
+│            ┌────────────┘                     └────────────┐             │
+│            ▼                                               ▼             │
+│  ┌─────────────────────┐                     ┌─────────────────────────┐│
+│  │    RAG Server       │                     │    SQLite Server        ││
+│  │  services/rag-server│                     │  services/sqlite-server ││
+│  └─────────────────────┘                     └─────────────────────────┘│
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
-📄 **Full Architecture:** [ADR-001-system-architecture.md](docs/architecture/ADR-001-system-architecture.md)
-
-## 📚 Content Sources
-
-### SRD 5.2 (System Reference Document)
-The official D&D 5th Edition rules released under Creative Commons CC-BY-4.0.
-
-| Section | Description |
-|---------|-------------|
-| Playing the Game | Core mechanics, combat, exploration |
-| Character Creation | Classes, origins, feats |
-| Equipment | Weapons, armor, gear |
-| Spells | Complete spell list A-Z |
-| Magic Items | Full magic item catalog |
-| Monsters | Monster stat blocks A-Z |
-| Animals | Beast stat blocks |
-| Rules Glossary | Conditions, terms, definitions |
-
-### World's Largest Dungeon (Book 1)
-A massive dungeon crawl adventure covering levels 1-18.
-
-| Region | Levels | Theme |
-|--------|--------|-------|
-| **A** | 1-3 | Orcs, kobolds, wererat conflict |
-| **B** | 4-6 | Goblin empire, traps |
-| **C** | 7-9 | Puzzles, black dragon, spectre |
-| **D** | 14-18 | Derro, xill, enslaved races |
-
-## 🗂️ Repository Structure
+## Project Structure
 
 ```
 The-Worlds-Largest-Dungeon/
-├── README.md
-├── docs/
-│   └── architecture/
-│       └── ADR-001-system-architecture.md
+├── .github/workflows/          # CI/CD pipelines
+│   ├── website-deploy.yml      # → GitHub Pages
+│   ├── chat-api-deploy.yml     # → Railway
+│   ├── rag-server-deploy.yml   # → Railway
+│   ├── sqlite-server-deploy.yml # → Railway
+│   └── ci.yml                  # Build testing
 │
-├── packages/                          # Application code (planned)
-│   ├── frontend/                      # Static web app
-│   ├── api-gateway/                   # Express router + LLM
-│   ├── sqlite-mcp/                    # Custom SQLite MCP server
-│   └── data-pipeline/                 # Markdown → SQLite parsers
+├── docs/architecture/          # Architecture Decision Records
+│   ├── ADR-001-system-architecture.md
+│   └── ADR-002-multi-service-deployment.md
 │
-├── Resources/
-│   ├── markdown/
-│   │   ├── SRD 5.2/                   # D&D 5E rules (42 files)
-│   │   │   ├── 00-Legal-Information.md
-│   │   │   └── ...
-│   │   │
-│   │   └── World's Largest Dungeon/   # Adventure (36 files)
-│   │       ├── 00-Introduction.md
-│   │       └── ...
-│   │
-│   └── pdf/                           # Source PDFs
+├── services/
+│   ├── website/               # Astro frontend (GitHub Pages)
+│   ├── chat-api/              # Express middleware (Railway)
+│   ├── rag-server/            # Index Foundry RAG (Railway)
+│   └── sqlite-server/         # better-sqlite3 server (Railway)
+│
+├── tools/
+│   └── data-pipeline/         # Markdown parsers → SQLite
+│
+└── Resources/markdown/        # Source content
+    ├── SRD 5.2/              # D&D 5.2 SRD (48 files)
+    └── World's Largest Dungeon/ # Dungeon content (34 files)
 ```
 
-## 📜 License
+## Services
 
-### SRD 5.2 Content
-This work includes material from the System Reference Document 5.2 ("SRD 5.2") by Wizards of the Coast LLC. Licensed under CC-BY-4.0.
+### 1. Website (services/website/)
+- **Tech:** Astro
+- **Deploy:** GitHub Pages
+- **Features:** Chat interface, dark fantasy theme, mobile responsive
 
-### World's Largest Dungeon
-Original material © AEG/Alderac Entertainment Group.
+### 2. Chat API (services/chat-api/)
+- **Tech:** Express + TypeScript
+- **Deploy:** Railway
+- **Features:** Query classification, LLM synthesis via OpenRouter
+
+### 3. RAG Server (services/rag-server/)
+- **Tech:** Index Foundry
+- **Deploy:** Railway
+- **Features:** 1,940 semantic chunks, hybrid search
+
+### 4. SQLite Server (services/sqlite-server/)
+- **Tech:** Express + better-sqlite3
+- **Deploy:** Railway
+- **Features:** 340 spells, 80 monsters, 205 equipment, 337 rooms
+
+## Quick Start
+
+### Prerequisites
+- Node.js 20+
+- npm
+
+### Local Development
+
+```bash
+# 1. Clone repository
+git clone https://github.com/mnehmos/The-Worlds-Largest-Dungeon.git
+cd The-Worlds-Largest-Dungeon
+
+# 2. Start SQLite Server (port 3000)
+cd services/sqlite-server
+npm install && npm run dev
+
+# 3. Start RAG Server (port 8080)
+cd ../rag-server
+npm install && npm run dev
+
+# 4. Start Chat API (port 8081)
+cd ../chat-api
+cp .env.example .env  # Configure API keys
+npm install && npm run dev
+
+# 5. Start Website (port 4321)
+cd ../website
+npm install && npm run dev
+```
+
+### Environment Variables
+
+#### Chat API (.env)
+```env
+OPENROUTER_API_KEY=your_openrouter_key
+RAG_SERVER_URL=http://localhost:8080
+SQLITE_SERVER_URL=http://localhost:3000
+GITHUB_OWNER=mnehmos
+GITHUB_REPO=The-Worlds-Largest-Dungeon
+PORT=8081
+```
+
+#### RAG Server (.env)
+```env
+OPENAI_API_KEY=your_openai_key
+PORT=8080
+```
+
+## Data Pipeline
+
+Populate the SQLite database from markdown:
+
+```bash
+cd tools/data-pipeline
+npm install
+npm run seed
+```
+
+## Deployment
+
+### GitHub Configuration
+
+**Secrets:**
+- `RAILWAY_TOKEN` - Railway deployment token
+
+**Variables:**
+- `CHAT_API_URL` - Deployed chat API URL
+- `SITE_URL` - GitHub Pages URL
+- `BASE_PATH` - Repo subdirectory (if applicable)
+
+**GitHub Pages:**
+- Enable Pages with "GitHub Actions" source
+
+## API Endpoints
+
+### Chat API
+```
+POST /chat       - Send chat message
+GET  /health     - Service health check
+GET  /status     - Detailed service status
+```
+
+### RAG Server
+```
+POST /search     - Vector similarity search
+POST /chat       - Chat with RAG context
+GET  /health     - Health check
+```
+
+### SQLite Server
+```
+GET /spells      - Query spells (level, school, class)
+GET /monsters    - Query monsters (cr, type, size)
+GET /equipment   - Query equipment (category, type)
+GET /rooms       - Query dungeon rooms (region, id)
+GET /health      - Health check
+```
+
+## License
+
+This project uses content from:
+- **D&D 5.2 SRD** - Open Gaming License
+- **The World's Largest Dungeon** - AEG
+
+See respective files for licensing details.
 
 ---
 

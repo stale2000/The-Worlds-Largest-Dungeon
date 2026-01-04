@@ -14,3 +14,21 @@ Thumbs.db
 __pycache__/
 *.pyc
 *.pyo
+
+# Node.js
+node_modules/
+dist/
+*.log
+
+# Generated data files (too large for GitHub)
+services/rag-server/data/vectors.jsonl
+services/rag-server/data/chunks.jsonl
+services/sqlite-server/data/*.db
+tools/data-pipeline/output/*.json
+
+# Environment files
+.env
+.env.local
+
+# Build artifacts
+*.tsbuildinfo
