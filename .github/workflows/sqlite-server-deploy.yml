@@ -5,6 +5,9 @@ on:
     branches: [master]
     paths:
       - 'services/sqlite-server/**'
+      - 'tools/data-pipeline/**'
+      - 'Resources/markdown/World''s Largest Dungeon/**'
+      - 'Resources/markdown/SRD 5.2/**'
   workflow_dispatch:
 
 jobs:
