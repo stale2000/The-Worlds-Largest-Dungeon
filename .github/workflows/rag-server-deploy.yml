@@ -23,4 +23,4 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           cd services/rag-server
-          railway up --service wld-rag-server
+          railway up --service d9816ecf-8632-42d1-8727-a5a9900715c4
