@@ -8,16 +8,17 @@
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 
-// Default to a capable OSS model - can be overridden via env
-const DEFAULT_MODEL = process.env.OPENROUTER_MODEL || 'microsoft/wizardlm-2-8x22b';
+// Default to a reliable free-tier model - can be overridden via env
+// Using Llama 3.1 8B which is fast, reliable, and free
+const DEFAULT_MODEL = process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.1-8b-instruct:free';
 
-// Alternative models (all OSS, 70b+ class)
+// Alternative models (various tiers)
 export const AVAILABLE_MODELS = {
-  'wizardlm-2-8x22b': 'microsoft/wizardlm-2-8x22b',
-  'llama-3-70b': 'meta-llama/llama-3-70b-instruct',
-  'mixtral-8x22b': 'mistralai/mixtral-8x22b-instruct',
-  'qwen-72b': 'qwen/qwen-72b-chat',
-  'command-r-plus': 'cohere/command-r-plus',
+  'llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
+  'llama-3.1-70b': 'meta-llama/llama-3.1-70b-instruct',
+  'llama-3.2-3b': 'meta-llama/llama-3.2-3b-instruct:free',
+  'qwen-2.5-72b': 'qwen/qwen-2.5-72b-instruct',
+  'mistral-nemo': 'mistralai/mistral-nemo:free',
 } as const;
 
 export interface Message {
