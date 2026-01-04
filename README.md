@@ -30,11 +30,11 @@ Build a fast, intelligent rules lookup tool that can:
 
 | Component | Technology | Purpose |
 |-----------|------------|---------|
+| **Frontend** | [Astro](https://astro.build) | Static site with islands architecture |
 | **RAG** | [Index Foundry](https://github.com/mnehmos/mnehmos.index-foundry.mcp) | Vector search, embeddings, semantic retrieval |
 | **Structured Data** | SQLite + Custom MCP Server | Spell/monster/equipment/room queries |
 | **LLM** | Claude API | Response synthesis |
 | **Deployment** | Railway | Multi-service hosting |
-| **Frontend** | HTML/CSS/JS | Chat interface |
 
 ## 🏗️ Architecture
 

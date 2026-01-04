@@ -62,10 +62,16 @@ Users need both:
 
 ## Component Details
 
-### 1. Frontend (Static Site)
+### 1. Frontend (Astro)
 
-**Technology:** HTML/CSS/JavaScript (or React/Vue)  
+**Technology:** [Astro](https://astro.build)
 **Deployment:** Railway static site or CDN
+
+**Why Astro:**
+- Zero JS by default → fast initial load
+- Islands architecture → interactive components only where needed
+- Built-in markdown support → easy content rendering
+- Server-side rendering option for dynamic routes
 
 **Features:**
 - Chat-style interface for natural language queries
@@ -339,7 +345,7 @@ To populate SQLite, we need parsers that extract structured data from markdown:
 
 | Service | Type | Resources |
 |---------|------|-----------|
-| `frontend` | Static | HTML/CSS/JS bundle |
+| `frontend` | Astro (SSG) | Static bundle |
 | `api-gateway` | Node.js | 512MB RAM |
 | `index-foundry` | Node.js | 1GB RAM (embeddings) |
 | `sqlite-mcp` | Node.js | 256MB RAM |
@@ -449,10 +455,14 @@ The-Worlds-Largest-Dungeon/
 │       └── ADR-001-system-architecture.md
 │
 ├── packages/
-│   ├── frontend/                # Static web app
-│   │   ├── index.html
-│   │   ├── styles.css
-│   │   └── app.js
+│   ├── frontend/                # Astro web app
+│   │   ├── package.json
+│   │   ├── astro.config.mjs
+│   │   ├── src/
+│   │   │   ├── layouts/
+│   │   │   ├── pages/
+│   │   │   └── components/
+│   │   └── public/
 │   │
 │   ├── api-gateway/             # Express router + LLM orchestration
 │   │   ├── package.json
