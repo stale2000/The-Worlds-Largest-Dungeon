@@ -162,6 +162,142 @@ const {
     margin-top: var(--space-sm);
   }
 
+  /* Markdown Content Styles */
+  .markdown-content {
+    line-height: 1.6;
+  }
+
+  .markdown-content h1,
+  .markdown-content h2,
+  .markdown-content h3,
+  .markdown-content h4 {
+    color: var(--color-accent-primary);
+    margin: var(--space-md) 0 var(--space-sm) 0;
+    font-family: var(--font-display);
+  }
+
+  .markdown-content h1 { font-size: 1.5rem; }
+  .markdown-content h2 { font-size: 1.25rem; }
+  .markdown-content h3 { font-size: 1.1rem; }
+  .markdown-content h4 { font-size: 1rem; }
+
+  .markdown-content h1:first-child,
+  .markdown-content h2:first-child,
+  .markdown-content h3:first-child {
+    margin-top: 0;
+  }
+
+  .markdown-content strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  .markdown-content em {
+    font-style: italic;
+    color: var(--color-text-secondary);
+  }
+
+  .markdown-content ul,
+  .markdown-content ol {
+    margin: var(--space-sm) 0;
+    padding-left: var(--space-lg);
+  }
+
+  .markdown-content li {
+    margin: var(--space-xs) 0;
+  }
+
+  .markdown-content li::marker {
+    color: var(--color-accent-primary);
+  }
+
+  /* Tables */
+  .markdown-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-md) 0;
+    font-size: 0.9rem;
+  }
+
+  .markdown-content th,
+  .markdown-content td {
+    padding: var(--space-sm);
+    border: 1px solid var(--color-border);
+    text-align: left;
+  }
+
+  .markdown-content th {
+    background: var(--color-bg-elevated);
+    color: var(--color-accent-primary);
+    font-weight: 600;
+    font-family: var(--font-display);
+  }
+
+  .markdown-content tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .markdown-content tr:hover {
+    background: rgba(201, 162, 39, 0.05);
+  }
+
+  /* Code */
+  .markdown-content code {
+    background: var(--color-bg-elevated);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    color: var(--color-accent-secondary);
+  }
+
+  .markdown-content pre {
+    background: var(--color-bg-elevated);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    margin: var(--space-md) 0;
+    border: 1px solid var(--color-border);
+  }
+
+  .markdown-content pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.85rem;
+  }
+
+  /* Blockquotes */
+  .markdown-content blockquote {
+    border-left: 3px solid var(--color-accent-primary);
+    margin: var(--space-md) 0;
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(201, 162, 39, 0.05);
+    font-style: italic;
+    color: var(--color-text-secondary);
+  }
+
+  .markdown-content blockquote p {
+    margin: 0;
+  }
+
+  /* Horizontal Rule */
+  .markdown-content hr {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: var(--space-lg) 0;
+  }
+
+  /* Links */
+  .markdown-content a {
+    color: var(--color-accent-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .markdown-content a:hover {
+    color: var(--color-accent-secondary);
+  }
+
   /* Sources */
   .message-sources {
     margin-top: var(--space-sm);
@@ -405,6 +541,14 @@ const {
    * Handles form submission, API calls, and message rendering
    */
 
+  import { marked } from 'marked';
+
+  // Configure marked for safe HTML output
+  marked.setOptions({
+    breaks: true, // Convert \n to <br>
+    gfm: true,    // GitHub Flavored Markdown
+  });
+
   // Configuration
   const CHAT_API_URL = import.meta.env.CHAT_API_URL || 'http://localhost:8080';
 
@@ -511,13 +655,22 @@ const {
     const contentEl = document.createElement('div');
     contentEl.className = 'message-content';
 
-    // Parse content for basic formatting (paragraphs)
-    const paragraphs = content.split('\n\n').filter(p => p.trim());
-    paragraphs.forEach(p => {
-      const pEl = document.createElement('p');
-      pEl.textContent = p.trim();
-      contentEl.appendChild(pEl);
-    });
+    // Render markdown for assistant messages, plain text for user
+    if (type === 'assistant') {
+      const markdownHtml = marked.parse(content) as string;
+      const markdownWrapper = document.createElement('div');
+      markdownWrapper.className = 'markdown-content';
+      markdownWrapper.innerHTML = markdownHtml;
+      contentEl.appendChild(markdownWrapper);
+    } else {
+      // User messages are plain text
+      const paragraphs = content.split('\n\n').filter(p => p.trim());
+      paragraphs.forEach(p => {
+        const pEl = document.createElement('p');
+        pEl.textContent = p.trim();
+        contentEl.appendChild(pEl);
+      });
+    }
 
     // Add sources if present (assistant messages)
     if (sources && sources.length > 0 && type === 'assistant') {
